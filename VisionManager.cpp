@@ -14,6 +14,7 @@
 #include "VisionManager.h"
 #include <iostream>
 #include <sstream>
+#include <cmath>
 
 #include "Global.h"
 
@@ -93,19 +94,42 @@ void VisionManager::trackEnemyRobots()
 
 void VisionManager::trackAlliedRobots()
 {
-    Mat thresholdTotal, thresholdDef, thresholdDirect;
-    Mat tempTotal, tempDirect;
-    vector<vector<Point>> totalContours, directContours;
+    vector<vector<Point>> teamContours;
+    vector<int> alreadyUsed;
 
-    //Global::getAlliedRobots().size()
-    for (unsigned int i = 0; i < 1; ++i)
+    //Track cor do time
     {
+        Mat teamThreshold;
+    
+        Scalar teamMin, teamMax;
+        teamMin = Global::getColors()->getAllyMin();
+        teamMax = Global::getColors()->getAllyMax();
+        inRange(this->hsvImage, teamMin, teamMax, teamThreshold);
+
+        PreProcess::morphOps(teamThreshold, 3, MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+
+        PreProcess::singleMorph(teamThreshold, 3, PreProcess::singleOP::ERODE);
+
+        findContours(teamThreshold, teamContours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+        alreadyUsed = vector<int>(0, teamContours.size());
+    }
+
+    //Track cor do jogador
+    for (int i = 0; i < 1; ++i)
+    {
+        Scalar playerColorMin, playerColorMax;
+        Mat thresholdPlayer;
+        vector<vector<Point>> playerContours;
 
         Robo *r = Global::getAlliedRobots()[i];
 
+        playerColorMin = Global::getColors()->getRobotColorMin(i);
+        playerColorMax = Global::getColors()->getRobotColorMax(i);
+
         double t = (double)getTickCount();
 
-        inRange(this->hsvImage, r->getHSVMinDefColor(), r->getHSVMaxDefColor(), thresholdDef);
+        inRange(this->hsvImage, playerColorMin, playerColorMax, thresholdPlayer);
 
         t = ((double)getTickCount() - t) / getTickFrequency();
 
@@ -116,56 +140,22 @@ void VisionManager::trackAlliedRobots()
         case 0:
 
             name << "../Images/outputs/"
-                 << "r1_team_" << t << ".png";
-            imwrite(name.str(), thresholdDef);
+                 << "r1_player_" << t << ".png";
+            imwrite(name.str(), thresholdPlayer);
             name.str("");
 
             break;
         case 1:
             name << "../Images/outputs/"
-                 << "r2_team_" << t << ".png";
-            imwrite(name.str(), thresholdDef);
+                 << "r2_player_" << t << ".png";
+            imwrite(name.str(), thresholdPlayer);
             name.str("");
 
             break;
         case 2:
             name << "../Images/outputs/"
-                 << "r3_team_" << t << ".png";
-            imwrite(name.str(), thresholdDef);
-            name.str("");
-
-            break;
-        }
-
-        t = (double)getTickCount();
-
-        inRange(this->hsvImage, r->getHSVMinDirectColor(), r->getHSVMaxDirectColor(), thresholdDirect);
-
-        t = ((double)getTickCount() - t) / getTickFrequency();
-
-        switch (i)
-        {
-        case 0:
-
-            name << "../Images/outputs/"
-                 << "r1_role_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-
-            break;
-        case 1:
-
-            name << "../Images/outputs/"
-                 << "r2_role_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-
-            break;
-        case 2:
-
-            name << "../Images/outputs/"
-                 << "r3_role_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
+                 << "r3_player_" << t << ".png";
+            imwrite(name.str(), thresholdPlayer);
             name.str("");
 
             break;
@@ -195,239 +185,60 @@ void VisionManager::trackAlliedRobots()
             imwrite(name.str(), thresholdDef);
             name.str("");
             break;
-        }   
+        }  
+
+        PreProcess::singleMorph(thresholdPlayer, 3, PreProcess::singleOP::ERODE);
 
         t = (double)getTickCount();
-        PreProcess::morphOps(thresholdDirect, 3, MORPH_OPEN, 1, PreProcess::morphType::ROBOT);
-        t = ((double)getTickCount() - t)/getTickFrequency();
-        
-        switch (i)
-        {
-        case 0:
-            name << "../Images/outputs/"
-                 << "r1_role_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-            break;
-        case 1:
-            name << "../Images/outputs/"
-                 << "r2_role_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-            break;
-        case 2:
-            name << "../Images/outputs/"
-                 << "r3_role_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-            break;
-        } 
-
-        /*  */
-        t = (double)getTickCount();
-        add(thresholdDef, thresholdDirect, thresholdTotal);
-        t = ((double)getTickCount() - t) / getTickFrequency();
-
-        switch (i)
-        {
-        case 0:
-
-            name << "../Images/outputs/"
-                 << "r1_total_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-
-            break;
-        case 1:
-
-            name << "../Images/outputs/"
-                 << "r2_total_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        case 2:
-
-            name << "../Images/outputs/"
-                 << "r3_total_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        }
-        /*  */
-
-        t = (double)getTickCount();
-        PreProcess::morphOps(thresholdTotal, 3, MORPH_CLOSE, 2, PreProcess::morphType::ROBOT);
+        findContours(thresholdPlayer, playerContours, RETR_LIST, CHAIN_APPROX_SIMPLE);
         t = ((double)getTickCount() - t)/getTickFrequency();
 
-        switch (i)
-        {
-        case 0:
-
-            name << "../Images/outputs/"
-                 << "r1_total_morph_close_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-
-            break;
-        case 1:
-
-            name << "../Images/outputs/"
-                 << "r2_total_morph_close_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        case 2:
-
-            name << "../Images/outputs/"
-                 << "r3_total_morph_close_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        }
-
-        t = (double)getTickCount();
-        PreProcess::morphOps(thresholdTotal, 3, MORPH_OPEN, 2, PreProcess::morphType::ROBOT);
-        t = ((double)getTickCount() - t)/getTickFrequency();
-
-        switch (i)
-        {
-        case 0:
-
-            name << "../Images/outputs/"
-                 << "r1_total_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-
-            break;
-        case 1:
-
-            name << "../Images/outputs/"
-                 << "r2_total_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        case 2:
-
-            name << "../Images/outputs/"
-                 << "r3_total_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        }
-
-        t = (double)getTickCount();
-        PreProcess::singleMorph(thresholdDirect, 3, PreProcess::singleOP::DILATE);
-        t = ((double)getTickCount() - t)/getTickFrequency();
-
-        switch (i)
-        {
-        case 0:
-
-            name << "../Images/outputs/"
-                 << "r1_role_dilate_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-
-            break;
-        case 1:
-
-            name << "../Images/outputs/"
-                 << "r2_role_dilate_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-            break;
-        case 2:
-
-            name << "../Images/outputs/"
-                 << "r3_role_dilate_" << t << ".png";
-            imwrite(name.str(), thresholdDirect);
-            name.str("");
-            break;
-        }
-
-        t = (double)getTickCount();
-        PreProcess::singleMorph(thresholdTotal, 3, PreProcess::singleOP::DILATE);
-        t = ((double)getTickCount() - t)/getTickFrequency();
-
-        switch (i)
-        {
-        case 0:
-
-            name << "../Images/outputs/"
-                 << "r1_total_dilate_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-
-            break;
-        case 1:
-
-            name << "../Images/outputs/"
-                 << "r2_total_dilate_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        case 2:
-
-            name << "../Images/outputs/"
-                 << "r3_total_dilate_" << t << ".png";
-            imwrite(name.str(), thresholdTotal);
-            name.str("");
-            break;
-        }
-
-        t = (double)getTickCount();
-        thresholdDirect.copyTo(tempDirect);
-        findContours(tempDirect, directContours, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
-        t = ((double)getTickCount() - t)/getTickFrequency();
-
-        std::cout << "findContours(tempDirect): time = "  << t << std::endl;
+        std::cout << "findContours(thresholdPlayer): time = "  << t << std::endl;
 
 
         t = (double)getTickCount();
-        thresholdTotal.copyTo(tempTotal);
-        findContours(tempTotal, totalContours, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
-        t = ((double)getTickCount() - t)/getTickFrequency();
-
-        std::cout << "findContours(tempTotal): time = " << t << std::endl;
-
-
-        /*  switch(i) {
-        case 0:
-            imshow("DEFINE TIME", thresholdDef);
-            imshow("DEFINE GOLEIRO", thresholdDirect);
-            imshow("GOLEIRO TOTAL", thresholdTotal);
-            break;
-        case 1:
-            imshow("DEFINE JOGADOR1", thresholdDirect);
-            imshow("JOGADOR1 TOTAL", thresholdTotal);
-            break;
-        case 2:
-            imshow("DEFINE JOGADOR2", thresholdDirect);
-            imshow("JOGADOR2 TOTAL", thresholdTotal);
-            break;
-
-        }
- */
-
-        t = (double)getTickCount();
-        if (directContours.size() >= 1)
+        if (playerContours.size() >= 1)
         {
 
-            for (auto j = 0ul; j < directContours.size(); j++)
+            for (auto j = 0ul; j < playerContours.size(); j++)
             {
 
-                Moments directMoment;
-                double directArea;
+                Moments playerMoment;
+                double playerArea;
 
-                directMoment = moments(directContours[j]);
+                playerMoment = moments(playerContours[j]);
 
-                directArea = directMoment.m00;
+                playerArea = playerMoment.m00;
 
-                if (directArea >= MIN_DIRECT_AREA && directArea <= MAX_DIRECT_AREA)
+                if (playerArea >= MIN_DIRECT_AREA && playerArea <= MAX_DIRECT_AREA)
                 {
 
-                    r->setDirectionPosX(static_cast<int>(directMoment.m10 / directArea));
-                    r->setDirectionPosY(static_cast<int>(directMoment.m01 / directArea));
+                    int playerX = static_cast<int>(playerMoment.m10 / playerArea);
+                    int playerY = static_cast<int>(playerMoment.m01 / playerArea);
+
+                    for (auto k = 0ul; k < teamContours.size(); ++k) {
+
+                        if (!alreadyUsed[k]) {
+                            Moments teamMoment = moments(teamContours);
+                            double teamArea = teamMoment.m00;
+
+                            int teamX = static_cast<int>(teamMoment.m10/teamArea);
+                            int teamY = static_cast<int>(teamMoment.m01/teamArea);
+
+                            double xDif, yDif;
+
+                            xDif = playerX - teamX;
+                            yDif = playerY - teamY;
+
+                            double dist;
+
+                            dist = sqrt(pow(xDif,2.0)+pow(yDif,2.0));
+
+                            if (dist >= 1.0 && dist <= 2.0) {
+                                //ponto médio em dist é a coordenada central do robô
+                            }
+                        }
+                    }
 
                     //drawObject(directContours[j], Scalar(255, 0, 0));
                 }
@@ -436,40 +247,6 @@ void VisionManager::trackAlliedRobots()
         t = ((double)getTickCount() - t)/getTickFrequency();
 
         std::cout << "getXYPos(role): time = " << t << std::endl;
-
-        t = (double)getTickCount();
-        if (totalContours.size() >= 1)
-        {
-            vector<Point> approxQuad;
-
-            for (auto j = 0ul; j < totalContours.size(); j++)
-            {
-
-                approxPolyDP(totalContours[j], approxQuad, arcLength(Mat(totalContours[j]), true) * 0.05, true);
-
-                if (approxQuad.size() == 4)
-                {
-                    Moments totalMoment;
-                    double totalArea;
-
-                    totalMoment = moments(totalContours[j]);
-
-                    totalArea = totalMoment.m00;
-
-                    if (totalArea >= MIN_OBJECT_AREA && totalArea <= MAX_OBEJCT_AREA)
-                    {
-
-                        r->setPosX(static_cast<int>(totalMoment.m10 / totalArea));
-                        r->setPosY(static_cast<int>(totalMoment.m01 / totalArea));
-
-                        //drawObject(approxQuad, Scalar(0, 255, 0));
-                    }
-                }
-            }
-        }
-        t = ((double)getTickCount() - t)/getTickFrequency();
-
-        std::cout << "getXYPos(Total): time = " << t << std::endl;
 
         /* else {
             putText(this->cameraFeed, "MUITO RUIDO", Point(0,50), 2, 1, Scalar(0, 255,0), 2);
