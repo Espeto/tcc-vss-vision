@@ -235,7 +235,7 @@ void VisionManager::trackAlliedRobots()
                             dist = sqrt(pow(xDif,2.0)+pow(yDif,2.0));
 
                             if (dist >= 1.0 && dist <= 2.0) {
-                                //ponto médio em dist é a coordenada central do robô
+                                
                             }
                         }
                     }
