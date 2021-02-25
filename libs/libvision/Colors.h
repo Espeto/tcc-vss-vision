@@ -36,4 +36,4 @@ private:
     cv::Scalar allyHSVMin, allyHSVMax;
     cv::Scalar enemyHSVMin, enemyHSVMax;
     std::vector<cv::Scalar> robotMin, robotMax;
-}
+};

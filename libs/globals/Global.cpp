@@ -5,7 +5,7 @@ namespace {
   std::vector<Robo*> alliedteam(robots.begin(), robots.begin() + 3);
   std::vector<Robo*> enemyteam(robots.begin() + 3, robots.end());
   Ball* const bola = new Ball;
-  Colors const *colors = new Colors;
+  Colors* const colors = new Colors;
 }
 
 std::vector<Robo*> Global::getRobots() {return robots;}

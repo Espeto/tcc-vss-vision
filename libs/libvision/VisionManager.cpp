@@ -12,11 +12,10 @@
  */
 
 #include "VisionManager.h"
-#include <iostream>
-#include <sstream>
 #include <cmath>
 
-#include "Global.h"
+#include "../globals/Global.h"
+#include "../helpers/helper.h"
 
 using namespace cv;
 using namespace std;
@@ -31,19 +30,13 @@ VisionManager::VisionManager(std::string img_path)
     PreProcess::applyBlur(this->originalImage, this->blurImage, 3);
     t = ((double)getTickCount() - t) / getTickFrequency();
 
-    std::ostringstream fname;
-
-    fname << "../Images/outputs/blur_img_" << t << "_.png";
-    imwrite(fname.str(), this->blurImage);
-    fname.str("");
+    helpers::createImageFile(this->blurImage, t, "../Images/outputs/blur_img_");
 
     t = (double)getTickCount();
     cvtColor(this->originalImage, this->hsvImage, COLOR_BGR2HSV);
     t = ((double)getTickCount() - t) / getTickFrequency();
-    fname.str("");
 
-    fname << "../Images/outputs/toHSV_" << t << "_.png";
-    imwrite(fname.str(), this->hsvImage);
+    helpers::createImageFile(this->hsvImage, t, "toHSV_");
 }
 
 void VisionManager::trackObjects()

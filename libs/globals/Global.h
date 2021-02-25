@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Robo.h"
-#include "Ball.h"
-#include "Colors.h"
+#include "../libobjects/Robo.h"
+#include "../libobjects/Ball.h"
+#include "../libvision/Colors.h"
 
 namespace Global {
   std::vector<Robo*> getRobots();

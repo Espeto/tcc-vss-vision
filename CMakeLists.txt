@@ -1,15 +1,23 @@
 cmake_minimum_required(VERSION 3.0)
 
 project( TCC )
+
 find_package( OpenCV REQUIRED )
-
-add_library(VisionManager VisionManager.cpp)
-add_library(PreProcess PreProcess.cpp)
-add_library(Global Global.cpp)
-add_library(Robo Robo.cpp)
-add_library(Ball Ball.cpp)
-add_library(Colors Colors.cpp)
-
 include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+#add_subdirectory(libs)
+#add_subdirectory(libs/helpers)
+add_subdirectory(libs/libobjects)
+add_subdirectory(libs/globals)
+add_subdirectory(libs/libvision)
+
 add_executable( TCC main.cpp )
-target_link_libraries( TCC ${OpenCV_LIBS} VisionManager PreProcess Global Robo Ball Colors)
+
+target_link_libraries( TCC PUBLIC ${OpenCV_LIBS} VisionManager PreProcess Robo Ball Colors Global)
+
+target_include_directories(TCC PUBLIC
+                            "${PROJECT_BINARY_DIR}"
+                            "${PROJECT_SOURCE_DIR}/libs/globals"
+                            "${PROJECT_SOURCE_DIR}/libs/libobjects"
+                            "${PROJECT_SOURCE_DIR}/libs/libvision"
+                        )

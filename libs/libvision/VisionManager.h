@@ -15,8 +15,8 @@
 #include <opencv2/highgui.hpp>
 
 #include "PreProcess.h"
-#include "Robo.h"
-#include "Ball.h"
+#include "../libobjects/Robo.h"
+#include "../libobjects/Ball.h"
 
 class VisionManager
 {
