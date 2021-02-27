@@ -1,9 +1,9 @@
-#include "VisionManager.h"
-#include "PreProcess.h"
-#include "Robo.h"
-#include "Ball.h"
-#include "Global.h"
-#include "Colors.h"
+#include "libs/libvision/VisionManager.h"
+#include "libs/libvision/PreProcess.h"
+#include "libs/libobjects/Robo.h"
+#include "libs/libobjects/Ball.h"
+#include "libs/globals/Global.h"
+#include "libs/libvision/Colors.h"
 
 #include <string>
 #include <iostream>
@@ -17,19 +17,15 @@ using namespace cv;
 
 void setHDefMin(int pos, void *data);
 void setSDefMin(int pos, void *data);
-void setVDefMin(int pos, void *data);
 
 void setHDefMax(int pos, void *data);
 void setSDefMax(int pos, void *data);
-void setVDefMax(int pos, void *data);
 
 void setHDirectMin(int pos, void *data);
 void setSDirectMin(int pos, void *data);
-void setVDirectMin(int pos, void *data);
 
 void setHDirectMax(int pos, void *data);
 void setSDirectMax(int pos, void *data);
-void setVDirectMax(int pos, void *data);
 
 void robot1TrackbarsCreator(std::string window_name, void *data);
 void robot2TrackbarsCreator(std::string window_name, void *data);
@@ -86,7 +82,7 @@ const std::string window_enemy_1 = "Enemy 1";
 
 VisionManager *vision;
 
-Colors *colors = Globall::getColors();
+Colors *colors = Global::getColors();
 
 int main()
 {
@@ -229,8 +225,6 @@ void enemyTrackbarsCreator(std::string window_name, void *data)
     createTrackbar("H Def Max", window_name, &HEnemyDefMax, 179, setHDefMax, data);
     createTrackbar("S Def Min", window_name, &SEnemyDefMin, 255, setSDefMin, data);
     createTrackbar("S Def Max", window_name, &SEnemyDefMax, 255, setSDefMax, data);
-    createTrackbar("V Def Min", window_name, &VEnemyDefMin, 255, setVDefMin, data);
-    createTrackbar("V Def Max", window_name, &VEnemyDefMax, 255, setVDefMax, data);
 }
 
 void robot1TrackbarsCreator(std::string window_name, void *data)

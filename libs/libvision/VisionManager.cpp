@@ -54,7 +54,7 @@ void VisionManager::trackEnemyRobots()
     Mat tempRobot;
     vector<vector<Point>> robotContours;
 
-    for (auto i = 0ul; i < Global::getEnemyRobots().size(); ++i)
+    /* for (auto i = 0ul; i < Global::getEnemyRobots().size(); ++i)
     {
         auto r = Global::getEnemyRobots()[i];
 
@@ -82,7 +82,7 @@ void VisionManager::trackEnemyRobots()
                 r->setPosY(static_cast<int>(enemyMoment.m01 / enemyArea));
             }
         }
-    }
+    } */
 }
 
 void VisionManager::trackAlliedRobots()
@@ -121,66 +121,63 @@ void VisionManager::trackAlliedRobots()
         playerColorMax = Global::getColors()->getRobotColorMax(i);
 
         double t = (double)getTickCount();
-
         inRange(this->hsvImage, playerColorMin, playerColorMax, thresholdPlayer);
-
         t = ((double)getTickCount() - t) / getTickFrequency();
 
-        std::ostringstream name;
+        std::string name;
 
         switch (i)
         {
         case 0:
 
-            name << "../Images/outputs/"
-                 << "r1_player_" << t << ".png";
-            imwrite(name.str(), thresholdPlayer);
-            name.str("");
-
+            name = "r1_player_";
             break;
         case 1:
-            name << "../Images/outputs/"
-                 << "r2_player_" << t << ".png";
-            imwrite(name.str(), thresholdPlayer);
-            name.str("");
-
+            name = "r2_player_";
             break;
         case 2:
-            name << "../Images/outputs/"
-                 << "r3_player_" << t << ".png";
-            imwrite(name.str(), thresholdPlayer);
-            name.str("");
-
+            name = "r3_player_";
             break;
         }
 
+        helpers::createImageFile(thresholdPlayer, t, name);
+
         t = (double)getTickCount();
-        PreProcess::morphOps(thresholdDef, 3, MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+        PreProcess::morphOps(thresholdPlayer, 3, MORPH_OPEN, 1, PreProcess::morphType::CROSS);
         t = ((double)getTickCount() - t) / getTickFrequency();
 
         switch (i)
         {
         case 0:
-            name << "../Images/outputs/"
-                 << "r1_team_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdDef);
-            name.str("");
+            name = "r1_team_morph_open_";
             break;
         case 1:
-            name << "../Images/outputs/"
-                 << "r2_team_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdDef);
-            name.str("");
+            name = "r2_team_morph_open_";
             break;
         case 2:
-            name << "../Images/outputs/"
-                 << "r3_team_morph_open_" << t << ".png";
-            imwrite(name.str(), thresholdDef);
-            name.str("");
+            name = "r3_team_morph_open_";
             break;
         }  
+        helpers::createImageFile(thresholdPlayer, t, name);
 
+        t = (double)getTickCount();
         PreProcess::singleMorph(thresholdPlayer, 3, PreProcess::singleOP::ERODE);
+        t = ((double)getTickCount() - t) / getTickFrequency();
+
+        switch (i)
+        {
+        case 0:
+            name = "r1_team_erode_";
+            break;
+        case 1:
+            name = "r2_team_erode_";
+            break;
+        case 2:
+            name = "r3_team_erode_";
+            break;
+        }  
+        helpers::createImageFile(thresholdPlayer, t, name);
+
 
         t = (double)getTickCount();
         findContours(thresholdPlayer, playerContours, RETR_LIST, CHAIN_APPROX_SIMPLE);
@@ -227,9 +224,11 @@ void VisionManager::trackAlliedRobots()
 
                             dist = sqrt(pow(xDif,2.0)+pow(yDif,2.0));
 
-                            if (dist >= 1.0 && dist <= 2.0) {
+                            // if (dist >= 1.0 && dist <= 2.0) {
                                 
-                            }
+                            // }
+
+                            std::cout << "Distance [" << i << "] = " << dist << std::endl;
                         }
                     }
 
