@@ -30,7 +30,9 @@ VisionManager::VisionManager(std::string img_path)
     PreProcess::applyBlur(this->originalImage, this->blurImage, 3);
     t = ((double)getTickCount() - t) / getTickFrequency();
 
-    helpers::createImageFile(this->blurImage, t, "../Images/outputs/blur_img_");
+    std::cout << "Antes gravar imagem" << std::endl;
+    helpers::createImageFile(this->blurImage, t, "blur_img_");
+    std::cout << "Antes gravar imagem" << std::endl;
 
     t = (double)getTickCount();
     cvtColor(this->originalImage, this->hsvImage, COLOR_BGR2HSV);
@@ -107,6 +109,7 @@ void VisionManager::trackAlliedRobots()
 
         alreadyUsed = vector<int>(0, teamContours.size());
     }
+    //Testar se o segfault esta dando antes ou depois desse ponto
 
     //Track cor do jogador
     for (int i = 0; i < 1; ++i)

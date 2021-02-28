@@ -12,7 +12,7 @@ add_subdirectory(libs/libvision)
 
 add_executable( TCC main.cpp )
 
-target_link_libraries( TCC PUBLIC ${OpenCV_LIBS} Helper VisionManager PreProcess Robo Ball Colors Global)
+target_link_libraries( TCC PUBLIC ${OpenCV_LIBS} VisionManager PreProcess Robo Ball Colors Global)
 
 target_include_directories(TCC PUBLIC
                             "${PROJECT_BINARY_DIR}"

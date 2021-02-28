@@ -12,6 +12,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 using namespace cv;
 
@@ -82,7 +83,7 @@ const std::string window_enemy_1 = "Enemy 1";
 
 VisionManager *vision;
 
-Colors *colors = Global::getColors();
+Colors *colors;
 
 int main()
 {
@@ -106,6 +107,7 @@ int main()
 
     vision = new VisionManager(imagePath);
 
+    colors = Global::getColors();
     
     //auto enemies = Global::getEnemyRobots();
     //auto ball = Global::getBall();
@@ -284,6 +286,8 @@ void setHDefMin(int pos, void *data)
         exit(1);
     }
 
+    cb_data = (CallbackData*) data;
+
     hsv = colors->getAllyMin();
 
     hsv[0] = pos;
@@ -294,7 +298,7 @@ void setHDefMin(int pos, void *data)
 
     maxRange = colors->getAllyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange( *cb_data->original, hsv, maxRange, *cb_data->outDef);
 }
 
 void setSDefMin(int pos, void *data)
