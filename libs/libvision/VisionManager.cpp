@@ -30,9 +30,7 @@ VisionManager::VisionManager(std::string img_path)
     PreProcess::applyBlur(this->originalImage, this->blurImage, 3);
     t = ((double)getTickCount() - t) / getTickFrequency();
 
-    std::cout << "Antes gravar imagem" << std::endl;
     helpers::createImageFile(this->blurImage, t, "blur_img_");
-    std::cout << "Antes gravar imagem" << std::endl;
 
     t = (double)getTickCount();
     cvtColor(this->originalImage, this->hsvImage, COLOR_BGR2HSV);
@@ -91,25 +89,42 @@ void VisionManager::trackAlliedRobots()
 {
     vector<vector<Point>> teamContours;
     vector<int> alreadyUsed;
+    double t;
 
     //Track cor do time
     {
         Mat teamThreshold;
-    
         Scalar teamMin, teamMax;
+
         teamMin = Global::getColors()->getAllyMin();
         teamMax = Global::getColors()->getAllyMax();
+
+        t = (double)getTickCount();
         inRange(this->hsvImage, teamMin, teamMax, teamThreshold);
+        t = ((double)getTickCount() - t) / getTickFrequency();
 
+        helpers::createImageFile(teamThreshold, t, "team_threshold_");
+
+        t = (double)getTickCount();
         PreProcess::morphOps(teamThreshold, 3, MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+        t = ((double)getTickCount() - t) / getTickFrequency();
 
+        helpers::createImageFile(teamThreshold, t, "team_morph_open_");
+
+        t = (double)getTickCount();
         PreProcess::singleMorph(teamThreshold, 3, PreProcess::singleOP::ERODE);
+        t = ((double)getTickCount() - t) / getTickFrequency();
 
+        helpers::createImageFile(teamThreshold, t, "team_erode_");
+
+        t = (double)getTickCount();
         findContours(teamThreshold, teamContours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+        t = ((double)getTickCount() - t) / getTickFrequency();
 
-        alreadyUsed = vector<int>(0, teamContours.size());
+        std::cout << "findCountours(thresholdTeam) = " << t << std::endl;
+
+        alreadyUsed = vector<int>(teamContours.size(), 0);
     }
-    //Testar se o segfault esta dando antes ou depois desse ponto
 
     //Track cor do jogador
     for (int i = 0; i < 1; ++i)
@@ -123,11 +138,11 @@ void VisionManager::trackAlliedRobots()
         playerColorMin = Global::getColors()->getRobotColorMin(i);
         playerColorMax = Global::getColors()->getRobotColorMax(i);
 
-        double t = (double)getTickCount();
+        t = (double)getTickCount();
         inRange(this->hsvImage, playerColorMin, playerColorMax, thresholdPlayer);
         t = ((double)getTickCount() - t) / getTickFrequency();
 
-        std::string name;
+        string name;
 
         switch (i)
         {
@@ -152,13 +167,13 @@ void VisionManager::trackAlliedRobots()
         switch (i)
         {
         case 0:
-            name = "r1_team_morph_open_";
+            name = "r1_player_morph_open_";
             break;
         case 1:
-            name = "r2_team_morph_open_";
+            name = "r2_player_morph_open_";
             break;
         case 2:
-            name = "r3_team_morph_open_";
+            name = "r3_player_morph_open_";
             break;
         }  
         helpers::createImageFile(thresholdPlayer, t, name);
@@ -170,13 +185,13 @@ void VisionManager::trackAlliedRobots()
         switch (i)
         {
         case 0:
-            name = "r1_team_erode_";
+            name = "r1_player_erode_";
             break;
         case 1:
-            name = "r2_team_erode_";
+            name = "r2_player_erode_";
             break;
         case 2:
-            name = "r3_team_erode_";
+            name = "r3_player_erode_";
             break;
         }  
         helpers::createImageFile(thresholdPlayer, t, name);
@@ -187,7 +202,6 @@ void VisionManager::trackAlliedRobots()
         t = ((double)getTickCount() - t)/getTickFrequency();
 
         std::cout << "findContours(thresholdPlayer): time = "  << t << std::endl;
-
 
         t = (double)getTickCount();
         if (playerContours.size() >= 1)
@@ -212,7 +226,7 @@ void VisionManager::trackAlliedRobots()
                     for (auto k = 0ul; k < teamContours.size(); ++k) {
 
                         if (!alreadyUsed[k]) {
-                            Moments teamMoment = moments(teamContours);
+                            Moments teamMoment = moments(teamContours[k]);
                             double teamArea = teamMoment.m00;
 
                             int teamX = static_cast<int>(teamMoment.m10/teamArea);
@@ -226,16 +240,22 @@ void VisionManager::trackAlliedRobots()
                             double dist;
 
                             dist = sqrt(pow(xDif,2.0)+pow(yDif,2.0));
+                            
+                            // Distancia verificada empiricamente com a imagem de teste
+                            if (dist >= 45.0 && dist <= 48) {
+                                alreadyUsed[k] = 1;
+                                int r_x = static_cast<int>((playerX + teamX)/2);
+                                int r_y = static_cast<int>((playerY + teamY)/2);
 
-                            // if (dist >= 1.0 && dist <= 2.0) {
-                                
-                            // }
+                                r->setPosX(r_x);
+                                r->setPosY(r_y);
+                            }
 
-                            std::cout << "Distance [" << i << "] = " << dist << std::endl;
+                            std::cout << "Distance [" << k << "] = " << dist << std::endl;
                         }
                     }
 
-                    //drawObject(directContours[j], Scalar(255, 0, 0));
+                    //drawObject(r->getPosX(), r->getPosY(), Scalar(255, 0, 0));
                 }
             }
         }
@@ -286,25 +306,29 @@ void VisionManager::trackBall()
                 Global::getBall()->setPosX(static_cast<int>(moment.m10 / area));
                 Global::getBall()->setPosY(static_cast<int>(moment.m01 / area));
 
-                drawObject(ballContours[i], Scalar(201, 20, 189));
+                //drawObject(ballContours[i], Scalar(201, 20, 189));
             }
         }
     }
 }
 
-void VisionManager::drawObject(vector<Point> contour, Scalar color)
+void VisionManager::drawObject(int x, int y, Scalar color)
 {
 
-    vector<Point> contours_poly(contour.size());
-    Rect boundRect;
-    Point2f center;
-    float radius;
+    // vector<Point> contours_poly(contour.size());
+    // Rect boundRect;
+    // Point2f center;
+    // float radius;
 
-    approxPolyDP(contour, contours_poly, 3, true);
-    boundRect = boundingRect(contours_poly);
-    minEnclosingCircle(contours_poly, center, radius);
+    // approxPolyDP(contour, contours_poly, 3, true);
+    // boundRect = boundingRect(contours_poly);
+    // minEnclosingCircle(contours_poly, center, radius);
 
-    rectangle(this->originalImage, boundRect.tl(), boundRect.br(), color, 2);
+    // rectangle(this->originalImage, boundRect.tl(), boundRect.br(), color, 2);
+
+    circle(this->originalImage, Point(x, y), 5, color, 2);
+
+    putText(this->originalImage, to_string(x) + "," + to_string(y), Point(x,y), 1, 1, color, 2);
 
     imwrite("../Images/outputs/final_image.png", this->originalImage);
 }

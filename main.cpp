@@ -98,7 +98,7 @@ int main()
     Mat enemyOut1, enemyOut2, enemyOut3 
     */;
 
-    std::string imagePath = "../Images/test_img.jpeg";
+    std::string imagePath = "../Images/robot_n_field.jpg";
 
     /* INICIALIZAÇÕES */
     
@@ -123,7 +123,7 @@ int main()
     namedWindow("Original Sem Blur", WINDOW_NORMAL);
     imshow("Original Sem Blur", original);
 
-    PreProcess::applyBlur(original, original, 3);
+    PreProcess::applyBlur(original, original, 5);
 
     cvtColor(original, hsvImage, COLOR_BGR2HSV);
 

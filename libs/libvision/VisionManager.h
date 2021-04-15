@@ -44,6 +44,6 @@ private:
 
     void trackEnemyRobots();
     void trackAlliedRobots();
-    void drawObject(std::vector<cv::Point> contour, cv::Scalar color);
+    void drawObject(int x, int y, cv::Scalar color);
     void trackBall();
 };
