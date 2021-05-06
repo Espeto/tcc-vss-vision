@@ -17,6 +17,7 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -119,6 +120,8 @@ int main()
         std::cout << "Erro ao abrir vídeo" << std::endl;
         exit(-1);
     }
+    
+    cap >> original;
 
     /* INICIALIZAÇÕES */
 
@@ -193,6 +196,8 @@ int main()
 
         cap >> original;
 
+        if(original.empty()) break;
+
         imshow(window_ally_1, allyDefOut1);
         imshow(out_dir_1, allyDirOut1);
 
@@ -205,9 +210,9 @@ int main()
         if (val)
         {
             PreProcessPipe1 preprocess1 = PreProcessPipe1();
-            SegmentationPipe1 segmentation1 = SegmentationPipe1();
-            ExtractionPipe1 extraction1 = ExtractionPipe1();
-            SegexPipe1 segex1 = SegexPipe1(&segmentation1, &extraction1);
+            auto segmentation1 = std::make_unique<SegmentationPipe1>();
+            auto extraction1   = std::make_unique<ExtractionPipe1>();
+            SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
 
             preprocess1.execute(original, filteredImg);
             segex1.execute(filteredImg);
