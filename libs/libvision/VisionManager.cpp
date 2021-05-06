@@ -27,7 +27,7 @@ VisionManager::VisionManager(std::string img_path)
     this->originalImage = imread(img_path);
 
     double t = (double)getTickCount();
-    PreProcess::applyBlur(this->originalImage, this->blurImage, 3);
+    PreProcess::applyBlur(this->originalImage, this->blurImage, 3, PreProcess::smoothType::MEDIAN);
     t = ((double)getTickCount() - t) / getTickFrequency();
 
     helpers::createImageFile(this->blurImage, t, "blur_img_");

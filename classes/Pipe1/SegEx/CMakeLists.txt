@@ -1,0 +1,2 @@
+add_library(segexpipe1 SegexPipe1.cpp)
+target_link_libraries(segexpipe1 PUBLIC PipeInterface)

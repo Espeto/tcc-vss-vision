@@ -50,9 +50,18 @@ void PreProcess::singleMorph(cv::Mat &thresh, int sizeElement, singleOP op) {
 
 }
 
-void PreProcess::applyBlur(cv::Mat &inputImg, cv::Mat &result, int size) {
-    
-    // cv::medianBlur(inputImg, result, size);
-    cv::GaussianBlur(inputImg, result, cv::Size(size, size), 0, 0);
+void PreProcess::applyBlur(cv::Mat &inputImg, cv::Mat &result, int size, smoothType type) {
+
+    switch(type) {
+        case smoothType::GAUSSIAN:
+            cv::GaussianBlur(inputImg, result, cv::Size(size, size), 0, 0);
+            break;
+        case smoothType::MEDIAN:
+            cv::medianBlur(inputImg, result, size);
+            break;
+        case smoothType::AVERAGE:
+            cv::blur(inputImg, result, cv::Size(size, size));
+            break;
+    }
 }
 

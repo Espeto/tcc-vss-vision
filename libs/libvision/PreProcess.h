@@ -29,7 +29,14 @@ namespace PreProcess {
         CROSS = 3
     };
 
-    void applyBlur(cv::Mat &inputImg, cv::Mat &result, int size);
+    enum class smoothType {
+        GAUSSIAN = 1,
+        MEDIAN = 2,
+        AVERAGE = 3
+
+    };
+
+    void applyBlur(cv::Mat &inputImg, cv::Mat &result, int size, smoothType type);
     void morphOps(cv::Mat &thresh, int sizeElement, int op, int it, morphType type);
     void singleMorph(cv::Mat &thresh, int sizeElement, singleOP op);
 }

@@ -1,15 +1,24 @@
-#include "libs/libvision/VisionManager.h"
 #include "libs/libvision/PreProcess.h"
 #include "libs/libobjects/Robo.h"
 #include "libs/libobjects/Ball.h"
 #include "libs/globals/Global.h"
 #include "libs/libvision/Colors.h"
+#include "libs/helpers/helper.h"
+
+#include "libs/interfaces/PreProcessInterface.hpp"
+#include "libs/interfaces/SegmentationInterface.hpp"
+#include "libs/interfaces/ExtractionInterface.hpp"
+#include "libs/interfaces/SegExInterface.hpp"
+
+#include "classes/Pipe1/PreProcess1/PreProcessPipe1.hpp"
+#include "classes/Pipe1/SegEx/SegexPipe1.hpp"
+#include "classes/Pipe1/SegEx/HSVSegmentation/SegmentationPipe1.hpp"
+#include "classes/Pipe1/SegEx/Extraction/ExtractionPipe1.hpp"
 
 #include <string>
 #include <iostream>
 
 #include <opencv2/core.hpp>
-#include <opencv2/opencv.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -35,7 +44,6 @@ void robot3TrackbarsCreator(std::string window_name, void *data);
 void enemyTrackbarsCreator(std::string window_name, void *data);
 
 void trackObjs();
-void callbackTrackObjs(int pos, void*);
 
 struct CallbackData
 {
@@ -70,66 +78,61 @@ const std::string original_window = "Original";
 
 const std::string window_ally_1 = "Ally 1";
 const std::string out_dir_1 = "Ally Dir 1";
-/* 
-const std::string window_ally_2 = "Ally 2";
+
+/* const std::string window_ally_2 = "Ally 2";
 const std::string out_dir_2 = "Ally Dir 2";
 
 const std::string window_ally_3 = "Ally 3";
 const std::string out_dir_3 = "Ally Dir 3";
- */
-const std::string window_enemy_1 = "Enemy 1";
-// const std::string window_enemy_2 = "Enemy 2";
-// const std::string window_enemy_3 = "Enemy 3";
 
-VisionManager *vision;
+const std::string window_enemy_1 = "Enemy 1";
+const std::string window_enemy_2 = "Enemy 2";
+const std::string window_enemy_3 = "Enemy 3"; */
 
 Colors *colors;
 
+int val = 0;
+
 int main()
 {
+    VideoCapture cap;
 
-    Mat original, hsvImage;
+    Mat original, hsvImage, filteredImg;
 
     Mat allyDefOut1, allyDirOut1;
-   /* 
+
+    std::vector<cv::Scalar> draw_colors = {cv::Scalar(233,66,245), cv::Scalar(40,115,72), cv::Scalar(118,145,48)};
+
+    /* 
     Mat allyDefOut2, allyDirOut2;
     Mat allyDefOut3, allyDirOut3;
 
     Mat enemyOut1, enemyOut2, enemyOut3 
-    */;
+    */
 
-    std::string imagePath = "../Images/robot_n_field.jpg";
+    std::string videoPath = "../videos/video_robos.webm";
+
+    cap.open(videoPath);
+
+    if (!cap.isOpened())
+    {
+        std::cout << "Erro ao abrir vídeo" << std::endl;
+        exit(-1);
+    }
 
     /* INICIALIZAÇÕES */
-    
-    std::vector<CallbackData *> ally_data = {new CallbackData};//, new CallbackData, new CallbackData};
+
+    std::vector<CallbackData *> ally_data = {new CallbackData}; //, new CallbackData, new CallbackData};
     //std::vector<CallbackData *> enemy_data = {new CallbackData, new CallbackData, new CallbackData};
 
-    vision = new VisionManager(imagePath);
-
     colors = Global::getColors();
-    
+
     //auto enemies = Global::getEnemyRobots();
     //auto ball = Global::getBall();
 
-    original = imread(imagePath);
-
-    if (original.empty())
-    {
-        std::cout << "Loading Image Error" << std::endl;
-        exit(1);
-    }
-
-    namedWindow("Original Sem Blur", WINDOW_NORMAL);
-    imshow("Original Sem Blur", original);
-
-    PreProcess::applyBlur(original, original, 5);
-
-    cvtColor(original, hsvImage, COLOR_BGR2HSV);
-
-    allyDefOut1 = Mat::zeros(original.size(), CV_8UC1); 
+    allyDefOut1 = Mat::zeros(original.size(), CV_8UC1);
     allyDirOut1 = Mat::zeros(original.size(), CV_8UC1);
-    
+
     /*
     allyDefOut2 = Mat::zeros(original.size(), CV_8UC1);
     allyDirOut2 = Mat::zeros(original.size(), CV_8UC1);
@@ -159,10 +162,8 @@ int main()
 
     /* FIM INICIALIZAÇÕES */
 
-
     /* JANELAS */
     namedWindow(original_window, WINDOW_NORMAL);
-    imshow(original_window, original);
 
     namedWindow(window_ally_1, WINDOW_NORMAL);
     //namedWindow(window_ally_2);
@@ -178,20 +179,20 @@ int main()
     namedWindow(window_enemy_2);
     namedWindow(window_enemy_3);
     */
-   /* FIM JANELAS */
+    /* FIM JANELAS */
 
-   // Chamando as funções
+    // Chamando as funções
     robot1TrackbarsCreator(window_ally_1, (void *)ally_data[0]);
-    //robot2TrackbarsCreator(window_ally_2, (void*) ally_data[1]);
-    //robot3TrackbarsCreator(window_ally_3, (void*) ally_data[2]);
-    /*
-    enemyTrackbarsCreator(window_enemy_1, enemies[0], original, enemyOut1);
-    enemyTrackbarsCreator(window_enemy_2, enemies[1], original, enemyOut2);
-    enemyTrackbarsCreator(window_enemy_3, enemies[2], original, enemyOut3); */
+    /* robot2TrackbarsCreator(window_ally_2, (void*) ally_data[1]);
+    robot3TrackbarsCreator(window_ally_3, (void*) ally_data[2]); */
 
     trackObjs();
 
-    while(1) {
+    while (1)
+    {
+
+        cap >> original;
+
         imshow(window_ally_1, allyDefOut1);
         imshow(out_dir_1, allyDirOut1);
 
@@ -201,20 +202,47 @@ int main()
         //imshow(window_ally_3, allyDefOut3);
         //imshow(out_dir_3, allyDirOut3);
 
-        waitKey(30);
+        if (val)
+        {
+            PreProcessPipe1 preprocess1 = PreProcessPipe1();
+            SegmentationPipe1 segmentation1 = SegmentationPipe1();
+            ExtractionPipe1 extraction1 = ExtractionPipe1();
+            SegexPipe1 segex1 = SegexPipe1(segmentation1, extraction1);
+
+            preprocess1.execute(original, filteredImg);
+            segex1.execute(filteredImg);
+
+            for (int i = 0; i < 1; i++)
+            {
+                Robo *r = Global::getAlliedRobots()[i];
+
+                helpers::drawObject(r->getPosX(), r->getPosY(), cv::Scalar(100,0,255), original);
+            }
+            
+        }
+        else
+        {
+            //calibragem
+
+            PreProcess::applyBlur(original, original, 3, PreProcess::smoothType::AVERAGE);
+
+            cvtColor(original, hsvImage, COLOR_BGR2HSV);
+        }
+
+        imshow(original_window, original);
+
+        waitKey(10);
     }
+
+    destroyAllWindows();
 
     return 0;
 }
 
-void callbackTrackObjs(int pos, void*) {
-    vision->trackObjects();
-}
+void trackObjs()
+{
 
-void trackObjs() {
-    static int val = 0;
-
-    createTrackbar("track", "Run Track", &val, 1, callbackTrackObjs, NULL);
+    createTrackbar("track", "Run Track", &val, 1);
 }
 
 void enemyTrackbarsCreator(std::string window_name, void *data)
@@ -286,7 +314,7 @@ void setHDefMin(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getAllyMin();
 
@@ -298,7 +326,7 @@ void setHDefMin(int pos, void *data)
 
     maxRange = colors->getAllyMax();
 
-    inRange( *cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
 }
 
 void setSDefMin(int pos, void *data)
@@ -312,7 +340,7 @@ void setSDefMin(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getAllyMin();
 
@@ -340,7 +368,7 @@ void setHDefMax(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getAllyMax();
 
@@ -366,7 +394,7 @@ void setSDefMax(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getAllyMax();
 
@@ -395,7 +423,7 @@ void setHDirectMin(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getRobotColorMin(cb_data->id);
 
@@ -421,7 +449,7 @@ void setSDirectMin(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getRobotColorMin(cb_data->id);
 
@@ -448,7 +476,7 @@ void setHDirectMax(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getRobotColorMax(cb_data->id);
 
@@ -474,7 +502,7 @@ void setSDirectMax(int pos, void *data)
         exit(1);
     }
 
-    cb_data = (CallbackData*) data;
+    cb_data = (CallbackData *)data;
 
     hsv = colors->getRobotColorMax(cb_data->id);
 
@@ -488,5 +516,3 @@ void setSDirectMax(int pos, void *data)
 
     inRange(*cb_data->original, minRange, hsv, *cb_data->outDir);
 }
-
-

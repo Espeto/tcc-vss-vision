@@ -14,6 +14,9 @@
 #include "Robo.h"
 
 Robo::Robo() {
+    this->x = 0;
+    this->y = 0;
+    this->orientation = 0.0;
 }
 
 Robo::~Robo() {
