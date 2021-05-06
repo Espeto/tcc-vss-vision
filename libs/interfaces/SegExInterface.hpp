@@ -6,5 +6,5 @@
 
 class SegExInterface {
     public:
-    virtual void execute(cv::Mat preProcessedImg){};
+    virtual void execute(cv::Mat preProcessedImg) = 0;
 };

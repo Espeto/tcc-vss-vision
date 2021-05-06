@@ -4,5 +4,5 @@
 
 class PreProcessInterface {
     public:
-    virtual void execute(cv::Mat src, cv::Mat &dst){};
+    virtual void execute(cv::Mat src, cv::Mat &dst) = 0;
 };

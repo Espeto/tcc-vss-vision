@@ -4,15 +4,13 @@
 #include "../../../libs/interfaces/SegmentationInterface.hpp"
 #include "../../../libs/interfaces/ExtractionInterface.hpp"
 
-
 class SegexPipe1: public SegExInterface {
     public:
-        SegexPipe1(SegmentationInterface segment, ExtractionInterface extract);
-
+        SegexPipe1(SegmentationInterface* segment, ExtractionInterface *extract);
         void execute(cv::Mat preProcessedImg);
 
     private:
-        SegmentationInterface _segmentation;
-        ExtractionInterface _extraction;
+        SegmentationInterface* _segmentation;
+        ExtractionInterface* _extraction;
 
 };

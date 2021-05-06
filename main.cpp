@@ -207,7 +207,7 @@ int main()
             PreProcessPipe1 preprocess1 = PreProcessPipe1();
             SegmentationPipe1 segmentation1 = SegmentationPipe1();
             ExtractionPipe1 extraction1 = ExtractionPipe1();
-            SegexPipe1 segex1 = SegexPipe1(segmentation1, extraction1);
+            SegexPipe1 segex1 = SegexPipe1(&segmentation1, &extraction1);
 
             preprocess1.execute(original, filteredImg);
             segex1.execute(filteredImg);
