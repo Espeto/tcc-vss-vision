@@ -1,6 +1,7 @@
 #include "ExtractionPipe1.hpp"
 #include "../../../../libs/globals/Global.h"
 #include <math.h>
+#include <iostream>
 
 ExtractionPipe1::ExtractionPipe1(){}
 
@@ -10,9 +11,9 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<cv::Point>>, st
 
     std::vector<int> alreadyUsed;
 
-    alreadyUsed = std::vector<int>(teamContour.size(), 0);
-
     std::tie(roleContour, teamContour) = contours;
+
+    alreadyUsed = std::vector<int>(teamContour.size(), 0);
 
     for(int i = 0; i < roleContour.size(); ++i) {
 
@@ -29,6 +30,7 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<cv::Point>>, st
         int playerY = static_cast<int>(roleMoments.m01/roleArea);
 
         for(int j = 0; j < teamContour.size(); ++j) {
+
             if (!alreadyUsed[j]) {
                 cv::Moments teamMoments = cv::moments(teamContour[j]);
                 double teamArea = teamMoments.m00;
