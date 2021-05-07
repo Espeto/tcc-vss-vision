@@ -176,7 +176,12 @@ int main()
     //namedWindow(out_dir_2);
     //namedWindow(out_dir_3);
 
+    namedWindow("Segex");
+
     namedWindow("Run Track");
+
+    namedWindow("ThresholdSegTeam");
+    namedWindow("ThresholdSegPlayer");
     /*
     namedWindow(window_enemy_1);
     namedWindow(window_enemy_2);
@@ -216,23 +221,31 @@ int main()
 
             preprocess1.execute(original, filteredImg);
             segex1.execute(filteredImg);
+        }
+        else
+        {
+            //calibragem
+            while(!val) {
 
-            for (int i = 0; i < 1; i++)
+                PreProcess::applyBlur(original, original, 3, PreProcess::smoothType::MEDIAN);
+
+                cvtColor(original, hsvImage, COLOR_BGR2HSV);
+
+                imshow(window_ally_1, allyDefOut1);
+                imshow(out_dir_1, allyDirOut1);
+
+                imshow(original_window, original);
+
+                waitKey(10);
+            }
+        }
+
+        for (int i = 0; i < 1; i++)
             {
                 Robo *r = Global::getAlliedRobots()[i];
 
                 helpers::drawObject(r->getPosX(), r->getPosY(), cv::Scalar(100,0,255), original);
             }
-            
-        }
-        else
-        {
-            //calibragem
-
-            PreProcess::applyBlur(original, original, 3, PreProcess::smoothType::AVERAGE);
-
-            cvtColor(original, hsvImage, COLOR_BGR2HSV);
-        }
 
         imshow(original_window, original);
 
