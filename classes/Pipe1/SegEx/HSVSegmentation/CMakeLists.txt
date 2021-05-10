@@ -1,2 +1,2 @@
 add_library(segmentationpipe1 SegmentationPipe1.cpp)
-target_link_libraries(segmentationpipe1 PUBLIC PipeInterface Global PreProcess)
+target_link_libraries(segmentationpipe1 PUBLIC PipeInterface Global PreProcess Helper)

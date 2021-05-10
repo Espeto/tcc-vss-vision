@@ -1,10 +1,13 @@
 #include "SegmentationPipe1.hpp"
 #include "../../../../libs/globals/Global.h"
 #include "../../../../libs/libvision/PreProcess.h"
+#include "../../../../libs/helpers/helper.h"
 #include <opencv2/highgui.hpp>
 #include <iostream>
 
-SegmentationPipe1::SegmentationPipe1(){}
+SegmentationPipe1::SegmentationPipe1(){
+    this->fc_team = this->fc_dir = 1;
+}
 
 std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProcessedImg)
 {
@@ -24,13 +27,15 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
 
         PreProcess::singleMorph(teamThreshold, 3, PreProcess::singleOP::ERODE);
 
-        cv::imshow("ThresholdSegTeam", teamThreshold);
+        //helpers::createImageFile(teamThreshold, this->fc_team++, "team_frames/team");
+
+        //cv::imshow("ThresholdSegTeam", teamThreshold);
 
         cv::findContours(teamThreshold, teamContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
     }
 
     //Track cor do jogador
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 3; ++i)
     {
         cv::Scalar playerColorMin, playerColorMax;
         cv::Mat thresholdPlayer;
@@ -45,7 +50,9 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
 
         PreProcess::singleMorph(thresholdPlayer, 3, PreProcess::singleOP::ERODE);
 
-        cv::imshow("ThresholdSegPlayer", thresholdPlayer);
+        //helpers::createImageFile(thresholdPlayer, this->fc_dir++, "dir_frames/dir");
+
+        //cv::imshow("ThresholdSegPlayer", thresholdPlayer);
 
         cv::findContours(thresholdPlayer, playerContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
@@ -61,7 +68,7 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
 
                 playerArea = playerMoment.m00;
 
-                std::cout<< "Area = " << playerArea << std::endl;
+                std::cout<< "Area player " << i << " = " << playerArea << std::endl;
 
                 if (playerArea >= MIN_DIRECT_AREA && playerArea <= MAX_DIRECT_AREA)
                 {

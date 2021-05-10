@@ -13,6 +13,8 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<cv::Point>>, st
 
     std::tie(roleContour, teamContour) = contours;
 
+    std::cout << "Size role = " << roleContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
+
     alreadyUsed = std::vector<int>(teamContour.size(), 0);
 
     for(int i = 0; i < roleContour.size(); ++i) {
@@ -45,7 +47,9 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<cv::Point>>, st
 
                 dist = std::sqrt(std::pow(xDif,2.0)+std::pow(yDif,2.0));
 
-                if (dist >= 15 && dist <= 35) {
+                std::cout << "Role [" << i << "] | Time [" << j << "] | Distancia = " << dist << std::endl; 
+
+                if (dist > 15.0 && dist < 25.0) {
                     alreadyUsed[j] = 1;
 
                     int robot_x = static_cast<int>((playerX+teamX)/2);
