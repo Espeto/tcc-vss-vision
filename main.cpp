@@ -169,8 +169,10 @@ int main()
 
     namedWindow("Run Track");
 
-    // namedWindow("ThresholdSegTeam");
-    // namedWindow("ThresholdSegPlayer");
+    /* namedWindow("ThresholdSegTeam");
+    namedWindow("ThresholdSegPlayer1");
+    namedWindow("ThresholdSegPlayer2");
+    namedWindow("ThresholdSegPlayer3"); */
 
     /*
     namedWindow(window_enemy_1);
@@ -254,7 +256,7 @@ int main()
 
         imshow(original_window, original);
 
-        helpers::createImageFile(original, phc++, "frames/frame");
+        // helpers::createImageFile(original, phc++, "frames/frame");
 
         waitKey(10);
     }

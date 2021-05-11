@@ -9,7 +9,7 @@ public:
     std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> execute(cv::Mat preProcessedImg);
 
 private:
-    const int MIN_DIRECT_AREA = 30;
+    const int MIN_DIRECT_AREA = 120;
     const int MAX_DIRECT_AREA = 300;
 
     const int MIN_BALL_AREA = 200;

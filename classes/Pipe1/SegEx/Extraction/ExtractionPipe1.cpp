@@ -13,11 +13,13 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<cv::Point>>, st
 
     std::tie(roleContour, teamContour) = contours;
 
-    std::cout << "Size role = " << roleContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
+    //std::cout << "Size role = " << roleContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
 
     alreadyUsed = std::vector<int>(teamContour.size(), 0);
 
-    for(int i = 0; i < roleContour.size(); ++i) {
+    int pairCounter = 0;
+
+    for(int i = 0; i < roleContour.size() && pairCounter != 3; ++i) {
 
         Robo *r = Global::getAlliedRobots()[i];
 
@@ -47,10 +49,11 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<cv::Point>>, st
 
                 dist = std::sqrt(std::pow(xDif,2.0)+std::pow(yDif,2.0));
 
-                std::cout << "Role [" << i << "] | Time [" << j << "] | Distancia = " << dist << std::endl; 
+                // std::cout << "Role [" << i << "] | Time [" << j << "] | Distancia = " << dist << std::endl; 
 
                 if (dist > 15.0 && dist < 25.0) {
                     alreadyUsed[j] = 1;
+                    pairCounter++;
 
                     int robot_x = static_cast<int>((playerX+teamX)/2);
                     int robot_y = static_cast<int>((playerY+teamY)/2);
