@@ -169,10 +169,10 @@ int main()
 
     namedWindow("Run Track");
 
-    /* namedWindow("ThresholdSegTeam");
-    namedWindow("ThresholdSegPlayer1");
-    namedWindow("ThresholdSegPlayer2");
-    namedWindow("ThresholdSegPlayer3"); */
+    /* namedWindow("ThresholdSegTeam", WINDOW_NORMAL);
+    namedWindow("ThresholdSegPlayer1", WINDOW_NORMAL);
+    namedWindow("ThresholdSegPlayer2", WINDOW_NORMAL);
+    namedWindow("ThresholdSegPlayer3", WINDOW_NORMAL); */
 
     /*
     namedWindow(window_enemy_1);
@@ -204,9 +204,12 @@ int main()
 
         if (val)
         {
-
+            double t = (double)getTickCount();
             preprocess1.execute(original, filteredImg);
             segex1.execute(filteredImg);
+            t = ((double)getTickCount() - t) / getTickFrequency();
+
+            std::cout << "Tempo processamento apenas aliados: [" << t << "]" << std::endl;
         }
         else
         {
