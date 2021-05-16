@@ -11,8 +11,9 @@
 #include "libs/interfaces/SegExInterface.hpp"
 
 #include "classes/Pipe1/PreProcess1/PreProcessPipe1.hpp"
+#include "classes/Pipe1/PreProcess2/PreProcess2Pipe1.hpp"
 #include "classes/Pipe1/SegEx/SegexPipe1.hpp"
-#include "classes/Pipe1/SegEx/HSVSegmentation/SegmentationPipe1.hpp"
+#include "classes/Pipe1/SegEx/HSSegmentation/SegmentationPipe1.hpp"
 #include "classes/Pipe1/SegEx/Extraction/ExtractionPipe1.hpp"
 
 #include <string>
@@ -106,7 +107,7 @@ int main()
     Mat enemyOut1, enemyOut2, enemyOut3 
     */
 
-    std::string videoPath = "../videos/video_robos.webm";
+    std::string videoPath = "../videos/teste3.webm";
 
     cap.open(videoPath);
 
@@ -168,11 +169,13 @@ int main()
     namedWindow(out_dir_3, WINDOW_NORMAL);
 
     namedWindow("Run Track");
+    namedWindow("PreP img");
+    namedWindow("Temp");
 
-    /* namedWindow("ThresholdSegTeam", WINDOW_NORMAL);
+    namedWindow("ThresholdSegTeam", WINDOW_NORMAL);
     namedWindow("ThresholdSegPlayer1", WINDOW_NORMAL);
     namedWindow("ThresholdSegPlayer2", WINDOW_NORMAL);
-    namedWindow("ThresholdSegPlayer3", WINDOW_NORMAL); */
+    namedWindow("ThresholdSegPlayer3", WINDOW_NORMAL);
 
     /*
     namedWindow(window_enemy_1);
@@ -188,7 +191,8 @@ int main()
 
     trackObjs();
 
-    PreProcessPipe1 preprocess1 = PreProcessPipe1();
+    // PreProcessPipe1 preprocess = PreProcessPipe1();
+    PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
     auto segmentation1 = std::make_unique<SegmentationPipe1>();
     auto extraction1 = std::make_unique<ExtractionPipe1>();
     SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
@@ -204,22 +208,21 @@ int main()
 
         if (val)
         {
-            double t = (double)getTickCount();
-            preprocess1.execute(original, filteredImg);
+            // double t = (double)getTickCount();
+            preprocess.execute(original, filteredImg);
+            imshow("PreP img", filteredImg);
             segex1.execute(filteredImg);
-            t = ((double)getTickCount() - t) / getTickFrequency();
+            // t = ((double)getTickCount() - t) / getTickFrequency();
 
-            std::cout << "Tempo processamento apenas aliados: [" << t << "]" << std::endl;
+            // std::cout << "Tempo processamento apenas aliados: [" << t << "]" << std::endl;
         }
         else
         {
             //calibragem
             while (!val)
             {
-
-                PreProcess::applyBlur(original, original, 3, PreProcess::smoothType::MEDIAN);
-
-                cvtColor(original, hsvImage, COLOR_BGR2HSV);
+                
+                preprocess.execute(original, hsvImage);
 
                 imshow(window_ally_1, allyDefOut1);
                 imshow(out_dir_1, allyDirOut1);

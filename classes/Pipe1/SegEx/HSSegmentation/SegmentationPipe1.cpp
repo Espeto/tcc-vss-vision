@@ -29,7 +29,7 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
 
         //helpers::createImageFile(teamThreshold, this->fc_team++, "team_frames/team");
 
-        //cv::imshow("ThresholdSegTeam", teamThreshold);
+        cv::imshow("ThresholdSegTeam", teamThreshold);
 
         cv::findContours(teamThreshold, teamContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
     }
@@ -52,7 +52,7 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
 
         //helpers::createImageFile(thresholdPlayer, this->fc_dir++, "dir_frames/dir");
 
-        /* switch (i)
+        switch (i)
         {
         case 0:
             cv::imshow("ThresholdSegPlayer1", thresholdPlayer);
@@ -65,7 +65,7 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
         case 2:
             cv::imshow("ThresholdSegPlayer3", thresholdPlayer);
             break;
-        } */
+        }
 
         cv::findContours(thresholdPlayer, playerContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
@@ -81,7 +81,7 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
 
                 playerArea = playerMoment.m00;
 
-                //std::cout<< "Area player " << i << " = " << playerArea << std::endl;
+                std::cout<< "Area player " << i << " = " << playerArea << std::endl;
 
                 if (playerArea >= MIN_DIRECT_AREA && playerArea <= MAX_DIRECT_AREA)
                 {
