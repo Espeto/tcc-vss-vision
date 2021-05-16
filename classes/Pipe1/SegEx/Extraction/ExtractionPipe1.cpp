@@ -7,63 +7,70 @@ ExtractionPipe1::ExtractionPipe1(){}
 
 void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, std::vector<std::vector<cv::Point>>> contours)
 {
-    std::vector<std::vector<cv::Point>> roleContour, teamContour;
+    std::vector<std::vector<cv::Point>> teamContour;
+    std::vector<std::vector<std::vector<cv::Point>>> rolesContour;
 
     std::vector<int> alreadyUsed;
 
-    std::tie(roleContour, teamContour) = contours;
+    std::tie(rolesContour, teamContour) = contours;
 
-    std::cout << "Size role = " << roleContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
+    std::cout << "Size All roles [Tem que ser 3 ou menos] = " << rolesContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
 
     alreadyUsed = std::vector<int>(teamContour.size(), 0);
 
     int pairCounter = 0;
 
-    for(int i = 0; i < roleContour.size() && pairCounter != 3; ++i) {
+    for(int i = 0; i < rolesContour.size(); ++i) {
 
         Robo *r = Global::getAlliedRobots()[i];
 
-        cv::Moments roleMoments;
-        double roleArea;
+        std::vector<std::vector<cv::Point>> roleContour = rolesContour[i];
 
-        roleMoments = cv::moments(roleContour[i]);
+        std::cout << "Num roles for robot [" << i << "] = " << roleContour.size() << std::endl;
 
-        roleArea = roleMoments.m00;
+        for (int k = 0; k < roleContour.size(); ++k) {
+            cv::Moments roleMoments;
+            double roleArea;
 
-        int playerX = static_cast<int>(roleMoments.m10/roleArea);
-        int playerY = static_cast<int>(roleMoments.m01/roleArea);
+            roleMoments = cv::moments(roleContour[k]);
 
-        for(int j = 0; j < teamContour.size(); ++j) {
+            roleArea = roleMoments.m00;
 
-            if (!alreadyUsed[j]) {
-                cv::Moments teamMoments = cv::moments(teamContour[j]);
-                double teamArea = teamMoments.m00;
+            int playerX = static_cast<int>(roleMoments.m10/roleArea);
+            int playerY = static_cast<int>(roleMoments.m01/roleArea);
 
-                int teamX = static_cast<int>(teamMoments.m10/teamArea);
-                int teamY = static_cast<int>(teamMoments.m01/teamArea);
+            for(int j = 0; j < teamContour.size(); ++j) {
 
-                double xDif, yDif, dist;
+                if (!alreadyUsed[j]) {
+                    cv::Moments teamMoments = cv::moments(teamContour[j]);
+                    double teamArea = teamMoments.m00;
 
-                xDif = playerX - teamX;
-                yDif = playerY - teamY;
+                    int teamX = static_cast<int>(teamMoments.m10/teamArea);
+                    int teamY = static_cast<int>(teamMoments.m01/teamArea);
 
-                dist = std::sqrt(std::pow(xDif,2.0)+std::pow(yDif,2.0));
+                    double xDif, yDif, dist;
 
-                // std::cout << "Role [" << i << "] | Time [" << j << "] | Distancia = " << dist << std::endl; 
+                    xDif = playerX - teamX;
+                    yDif = playerY - teamY;
 
-                if (dist > 11.0 && dist < 15.0) {
-                    alreadyUsed[j] = 1;
-                    pairCounter++;
+                    dist = std::sqrt(std::pow(xDif,2.0)+std::pow(yDif,2.0));
 
-                    int robot_x = static_cast<int>((playerX+teamX)/2);
-                    int robot_y = static_cast<int>((playerY+teamY)/2);
+                    // std::cout << "Role [" << i << "] | Time [" << j << "] | Distancia = " << dist << std::endl; 
 
-                    double robotAngle = std::atan2(yDif, xDif) - M_PI/4;
+                    if (dist > 11.0 && dist < 15.0) {
+                        alreadyUsed[j] = 1;
+                        pairCounter++;
 
-                    r->setOrientation(robotAngle);
+                        int robot_x = static_cast<int>((playerX+teamX)/2);
+                        int robot_y = static_cast<int>((playerY+teamY)/2);
 
-                    r->setPosX(robot_x);
-                    r->setPosY(robot_y);
+                        double robotAngle = std::atan2(yDif, xDif) - M_PI/4;
+
+                        r->setOrientation(robotAngle);
+
+                        r->setPosX(robot_x);
+                        r->setPosY(robot_y);
+                    }
                 }
             }
         }

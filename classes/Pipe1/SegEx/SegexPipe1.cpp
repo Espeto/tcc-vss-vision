@@ -9,7 +9,7 @@ SegexPipe1::SegexPipe1(SegmentationInterface *segment, ExtractionInterface *extr
 
 void SegexPipe1::execute(cv::Mat preProcessedImg)
 {
-    std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> contours;
+    std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, std::vector<std::vector<cv::Point>>> contours;
 
     contours = this->_segmentation->execute(preProcessedImg);
 
