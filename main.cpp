@@ -29,15 +29,19 @@ using namespace cv;
 
 void setHDefMin(int pos, void *data);
 void setSDefMin(int pos, void *data);
+void setVDefMin(int pos, void *data);
 
 void setHDefMax(int pos, void *data);
 void setSDefMax(int pos, void *data);
+void setVDefMax(int pos, void *data);
 
 void setHDirectMin(int pos, void *data);
 void setSDirectMin(int pos, void *data);
+void setVDirectMin(int pos, void *data);
 
 void setHDirectMax(int pos, void *data);
 void setSDirectMax(int pos, void *data);
+void setVDirectMax(int pos, void *data);
 
 void robot1TrackbarsCreator(std::string window_name, void *data);
 void robot2TrackbarsCreator(std::string window_name, void *data);
@@ -58,16 +62,20 @@ struct CallbackData
 // Team
 int HDefMin = 0, HDefMax = 179;
 int SDefMin = 0, SDefMax = 255;
+int VDefMin = 0, VDefMax = 255;
 
 // Players
 int H1DirMin = 0, H1DirMax = 179;
 int S1DirMin = 0, S1DirMax = 255;
+int V1DirMin = 0, V1DirMax = 255;
 
 int H2DirMin = 0, H2DirMax = 179;
 int S2DirMin = 0, S2DirMax = 255;
+int V2DirMin = 0, V2DirMax = 255;
 
 int H3DirMin = 0, H3DirMax = 179;
 int S3DirMin = 0, S3DirMax = 255;
+int V3DirMin = 0, V3DirMax = 255;
 
 const std::string original_window = "Original";
 
@@ -297,11 +305,15 @@ void robot1TrackbarsCreator(std::string window_name, void *data)
     createTrackbar("H Def Max", window_name, &HDefMax, 179, setHDefMax, data);
     createTrackbar("S Def Min", window_name, &SDefMin, 255, setSDefMin, data);
     createTrackbar("S Def Max", window_name, &SDefMax, 255, setSDefMax, data);
+    createTrackbar("V Def Min", window_name, &VDefMin, 255, setVDefMin, data);
+    createTrackbar("V Def Max", window_name, &VDefMax, 255, setVDefMax, data);
 
     createTrackbar("H Dir Min", window_name, &H1DirMin, 179, setHDirectMin, data);
     createTrackbar("H Dir Max", window_name, &H1DirMax, 179, setHDirectMax, data);
     createTrackbar("S Dir Min", window_name, &S1DirMin, 255, setSDirectMin, data);
     createTrackbar("S Dir Max", window_name, &S1DirMax, 255, setSDirectMax, data);
+    createTrackbar("V Dir Min", window_name, &V1DirMin, 255, setVDirectMin, data);
+    createTrackbar("V Dir Max", window_name, &V1DirMax, 255, setVDirectMax, data);
 }
 
 void robot2TrackbarsCreator(std::string window_name, void *data)
@@ -311,6 +323,8 @@ void robot2TrackbarsCreator(std::string window_name, void *data)
     createTrackbar("H Dir Max", window_name, &H2DirMax, 179, setHDirectMax, data);
     createTrackbar("S Dir Min", window_name, &S2DirMin, 255, setSDirectMin, data);
     createTrackbar("S Dir Max", window_name, &S2DirMax, 255, setSDirectMax, data);
+    createTrackbar("V Dir Min", window_name, &V2DirMin, 255, setVDirectMin, data);
+    createTrackbar("V Dir Max", window_name, &V2DirMax, 255, setVDirectMax, data);
 }
 
 void robot3TrackbarsCreator(std::string window_name, void *data)
@@ -320,6 +334,8 @@ void robot3TrackbarsCreator(std::string window_name, void *data)
     createTrackbar("H Dir Max", window_name, &H3DirMax, 179, setHDirectMax, data);
     createTrackbar("S Dir Min", window_name, &S3DirMin, 255, setSDirectMin, data);
     createTrackbar("S Dir Max", window_name, &S3DirMax, 255, setSDirectMax, data);
+    createTrackbar("V Dir Min", window_name, &V3DirMin, 255, setVDirectMin, data);
+    createTrackbar("V Dir Max", window_name, &V3DirMax, 255, setVDirectMax, data);
 }
 
 /* Seta cor do time */
@@ -378,6 +394,32 @@ void setSDefMin(int pos, void *data)
     inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
 }
 
+void setVDefMin(int pos, void *data)
+{
+    CallbackData *cb_data;
+    Scalar hsv;
+
+    if (data == NULL)
+    {
+        std::cout << "Error: Dado Null" << std::endl;
+        exit(1);
+    }
+
+    cb_data = (CallbackData *)data;
+
+    hsv = colors->getAllyMin();
+
+    hsv[2] = pos;
+
+    colors->setAllyMin(hsv);
+
+    Scalar maxRange;
+
+    maxRange = colors->getAllyMax();
+
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+}
+
 /* Máximos cor do time */
 
 void setHDefMax(int pos, void *data)
@@ -422,6 +464,32 @@ void setSDefMax(int pos, void *data)
     hsv = colors->getAllyMax();
 
     hsv[1] = pos;
+
+    colors->setAllyMax(hsv);
+
+    Scalar minRange;
+
+    minRange = colors->getAllyMin();
+
+    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+}
+
+void setVDefMax(int pos, void *data)
+{
+    CallbackData *cb_data;
+    Scalar hsv;
+
+    if (data == NULL)
+    {
+        std::cout << "Error: Dado Null" << std::endl;
+        exit(1);
+    }
+
+    cb_data = (CallbackData *)data;
+
+    hsv = colors->getAllyMax();
+
+    hsv[2] = pos;
 
     colors->setAllyMax(hsv);
 
@@ -487,6 +555,32 @@ void setSDirectMin(int pos, void *data)
     inRange(*cb_data->original, hsv, maxRange, *cb_data->outDir);
 }
 
+void setVDirectMin(int pos, void *data)
+{
+    CallbackData *cb_data;
+    Scalar hsv;
+
+    if (data == NULL)
+    {
+        std::cout << "Error: Dado Null" << std::endl;
+        exit(1);
+    }
+
+    cb_data = (CallbackData *)data;
+
+    hsv = colors->getRobotColorMin(cb_data->id);
+
+    hsv[2] = pos;
+
+    colors->setRobotColorMin(hsv, cb_data->id);
+
+    Scalar maxRange;
+
+    maxRange = colors->getRobotColorMax(cb_data->id);
+
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDir);
+}
+
 /* Máximos */
 void setHDirectMax(int pos, void *data)
 {
@@ -530,6 +624,32 @@ void setSDirectMax(int pos, void *data)
     hsv = colors->getRobotColorMax(cb_data->id);
 
     hsv[1] = pos;
+
+    colors->setRobotColorMax(hsv, cb_data->id);
+
+    Scalar minRange;
+
+    minRange = colors->getRobotColorMin(cb_data->id);
+
+    inRange(*cb_data->original, minRange, hsv, *cb_data->outDir);
+}
+
+void setVDirectMax(int pos, void *data)
+{
+    CallbackData *cb_data;
+    Scalar hsv;
+
+    if (data == NULL)
+    {
+        std::cout << "Error: Dado Null" << std::endl;
+        exit(1);
+    }
+
+    cb_data = (CallbackData *)data;
+
+    hsv = colors->getRobotColorMax(cb_data->id);
+
+    hsv[2] = pos;
 
     colors->setRobotColorMax(hsv, cb_data->id);
 
