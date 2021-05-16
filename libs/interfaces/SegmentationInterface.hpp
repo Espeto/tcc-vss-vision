@@ -6,5 +6,6 @@
 
 class SegmentationInterface {
     public:
-    virtual std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> execute(cv::Mat preProcessedImg) = 0;
+    virtual std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, 
+    std::vector<std::vector<cv::Point>>> execute(cv::Mat preProcessedImg) = 0;
 };

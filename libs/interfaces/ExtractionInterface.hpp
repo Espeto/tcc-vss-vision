@@ -6,5 +6,5 @@
 
 class ExtractionInterface {
     public:
-    virtual void execute(std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> contours) = 0;
+    virtual void execute(std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, std::vector<std::vector<cv::Point>>> contours) = 0;
 };

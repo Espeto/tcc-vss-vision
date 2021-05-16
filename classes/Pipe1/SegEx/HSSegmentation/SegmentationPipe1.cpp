@@ -9,9 +9,11 @@ SegmentationPipe1::SegmentationPipe1(){
     this->fc_team = this->fc_dir = 1;
 }
 
-std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProcessedImg)
+std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, 
+std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProcessedImg)
 {
-    std::vector<std::vector<cv::Point>> teamContours, playersContours;
+    std::vector<std::vector<std::vector<cv::Point>>> allPlayersContours(3, std::vector<std::vector<cv::Point>>());
+    std::vector<std::vector<cv::Point>> teamContours;
 
     //Track cor do time
     {
@@ -39,7 +41,7 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
     {
         cv::Scalar playerColorMin, playerColorMax;
         cv::Mat thresholdPlayer;
-        std::vector<std::vector<cv::Point>> playerContours;
+        std::vector<std::vector<cv::Point>> playersContours, playerContours;
 
         playerColorMin = Global::getColors()->getRobotColorMin(i);
         playerColorMax = Global::getColors()->getRobotColorMax(i);
@@ -89,7 +91,9 @@ std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Poin
                 }
             }
         }
+
+        allPlayersContours[i] = playersContours;
     }
 
-    return {playersContours, teamContours};
+    return {allPlayersContours, teamContours};
 }

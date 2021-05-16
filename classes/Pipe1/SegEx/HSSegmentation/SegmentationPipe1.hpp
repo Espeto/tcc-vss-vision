@@ -6,7 +6,8 @@ class SegmentationPipe1 : public SegmentationInterface
 {
 public:
     SegmentationPipe1();
-    std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> execute(cv::Mat preProcessedImg);
+    std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, 
+    std::vector<std::vector<cv::Point>>> execute(cv::Mat preProcessedImg);
 
 private:
     const int MIN_DIRECT_AREA = 55;

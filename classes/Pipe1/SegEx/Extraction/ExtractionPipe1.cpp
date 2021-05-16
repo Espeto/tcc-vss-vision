@@ -5,7 +5,7 @@
 
 ExtractionPipe1::ExtractionPipe1(){}
 
-void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<cv::Point>>, std::vector<std::vector<cv::Point>>> contours)
+void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, std::vector<std::vector<cv::Point>>> contours)
 {
     std::vector<std::vector<cv::Point>> roleContour, teamContour;
 
