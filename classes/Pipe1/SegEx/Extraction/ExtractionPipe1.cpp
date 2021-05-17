@@ -14,7 +14,7 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<std::vector<cv:
 
     std::tie(rolesContour, teamContour) = contours;
 
-    std::cout << "Size All roles [Tem que ser 3 ou menos] = " << rolesContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
+    // std::cout << "Size All roles [Tem que ser 3 ou menos] = " << rolesContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
 
     alreadyUsed = std::vector<int>(teamContour.size(), 0);
 
@@ -26,7 +26,7 @@ void ExtractionPipe1::execute(std::tuple<std::vector<std::vector<std::vector<cv:
 
         std::vector<std::vector<cv::Point>> roleContour = rolesContour[i];
 
-        std::cout << "Num roles for robot [" << i << "] = " << roleContour.size() << std::endl;
+        // std::cout << "Num roles for robot [" << i << "] = " << roleContour.size() << std::endl;
 
         for (int k = 0; k < roleContour.size(); ++k) {
             cv::Moments roleMoments;

@@ -1,22 +1,15 @@
 #include "PreProcessPipe1.hpp"
 #include "../../../libs/libvision/PreProcess.h"
 #include <opencv2/highgui.hpp>
+#include "../../../libs/helpers/helper.h"
 
 PreProcessPipe1::PreProcessPipe1(){}
 
 void PreProcessPipe1::execute(cv::Mat src, cv::Mat &dst) {
 
     cv::Mat tmp;
-    cv::Mat lookUpTable(1, 256, CV_8U);
 
-    uchar* p = lookUpTable.ptr();
-
-    for (int i = 0; i < 256; ++i) {
-        p[i] = cv::saturate_cast<uchar>(pow(i / 255.0, 5.5) * 255.0);
-    }
-
-    tmp = src.clone();
-    cv::LUT(src, lookUpTable, tmp);
+    PreProcess::gammaCorrection(src, tmp, 5.5);
 
     cv::imshow("Temp", tmp);
 

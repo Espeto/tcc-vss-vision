@@ -214,6 +214,7 @@ int main()
             break;
 
 
+
         if (val)
         {
             // double t = (double)getTickCount();
@@ -270,7 +271,7 @@ int main()
 
         imshow(original_window, original);
 
-        // helpers::createImageFile(original, phc++, "frames/frame");
+        helpers::createImageFile(original, phc++, "original/frame");
 
         waitKey(10);
     }
@@ -338,6 +339,15 @@ void robot3TrackbarsCreator(std::string window_name, void *data)
     createTrackbar("V Dir Max", window_name, &V3DirMax, 255, setVDirectMax, data);
 }
 
+void ballTrackbarsCreator(std::string window_name, void *data)
+{
+    createTrackbar("H Dir Min", window_name, &H3DirMin, 179, setHDirectMin, data);
+    createTrackbar("H Dir Max", window_name, &H3DirMax, 179, setHDirectMax, data);
+    createTrackbar("S Dir Min", window_name, &S3DirMin, 255, setSDirectMin, data);
+    createTrackbar("S Dir Max", window_name, &S3DirMax, 255, setSDirectMax, data);
+    createTrackbar("V Dir Min", window_name, &V3DirMin, 255, setVDirectMin, data);
+    createTrackbar("V Dir Max", window_name, &V3DirMax, 255, setVDirectMax, data);
+}
 /* Seta cor do time */
 
 /* Mínimos cor do time */
@@ -658,4 +668,30 @@ void setVDirectMax(int pos, void *data)
     minRange = colors->getRobotColorMin(cb_data->id);
 
     inRange(*cb_data->original, minRange, hsv, *cb_data->outDir);
+}
+
+/* Bola */
+void setBallHMin(int pos, void *data){
+
+}
+
+void setBallSMin(int pos, void *data){
+    
+}
+
+void setBallVMin(int pos, void *data){
+    
+}
+
+/* Máximos */
+void setBallHMax(int pos, void *data){
+    
+}
+
+void setBallSMax(int pos, void *data){
+    
+}
+
+void setBallVMax(int pos, void *data){
+    
 }

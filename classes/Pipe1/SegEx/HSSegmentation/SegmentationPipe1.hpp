@@ -19,5 +19,7 @@ private:
     const int MIN_OBJECT_AREA = 600;
     const int MAX_OBEJCT_AREA = 20000;
 
-    int fc_team, fc_dir;
+    int fc;
+
+    void posProcess1(cv::Mat &img);
 };

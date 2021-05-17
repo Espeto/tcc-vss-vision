@@ -6,7 +6,7 @@
 #include <iostream>
 
 SegmentationPipe1::SegmentationPipe1(){
-    this->fc_team = this->fc_dir = 1;
+    this->fc = 1;
 }
 
 std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, 
@@ -25,11 +25,11 @@ std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProce
 
         cv::inRange(preProcessedImg, teamMin, teamMax, teamThreshold);
 
-        PreProcess::morphOps(teamThreshold, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+        helpers::createImageFile(teamThreshold, this->fc, "team_frames/bposproc/team");
 
-        PreProcess::singleMorph(teamThreshold, 3, PreProcess::singleOP::ERODE);
+        posProcess1(teamThreshold);
 
-        //helpers::createImageFile(teamThreshold, this->fc_team++, "team_frames/team");
+        helpers::createImageFile(teamThreshold, this->fc, "team_frames/aposproc/team");
 
         cv::imshow("ThresholdSegTeam", teamThreshold);
 
@@ -48,24 +48,38 @@ std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProce
 
         cv::inRange(preProcessedImg, playerColorMin, playerColorMax, thresholdPlayer);
 
-        PreProcess::morphOps(thresholdPlayer, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+        switch (i)
+        {
+        case 0:
+            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/bposproc/frame");
+            break;
+        
+        case 1:
+            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/bposproc/frame");
+            break;
 
-        PreProcess::singleMorph(thresholdPlayer, 3, PreProcess::singleOP::ERODE);
+        case 2:
+            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/bposproc/frame");
+            break;
+        }
 
-        //helpers::createImageFile(thresholdPlayer, this->fc_dir++, "dir_frames/dir");
+        posProcess1(thresholdPlayer);
 
         switch (i)
         {
         case 0:
             cv::imshow("ThresholdSegPlayer1", thresholdPlayer);
+            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/aposproc/frame");
             break;
         
         case 1:
             cv::imshow("ThresholdSegPlayer2", thresholdPlayer);
+            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/aposproc/frame");
             break;
 
         case 2:
             cv::imshow("ThresholdSegPlayer3", thresholdPlayer);
+            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/aposproc/frame");
             break;
         }
 
@@ -83,7 +97,7 @@ std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProce
 
                 playerArea = playerMoment.m00;
 
-                std::cout<< "Area player " << i << " = " << playerArea << std::endl;
+                // std::cout<< "Area player " << i << " = " << playerArea << std::endl;
 
                 if (playerArea >= MIN_DIRECT_AREA && playerArea <= MAX_DIRECT_AREA)
                 {
@@ -95,5 +109,14 @@ std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProce
         allPlayersContours[i] = playersContours;
     }
 
+    this->fc++;
+
     return {allPlayersContours, teamContours};
+}
+
+void SegmentationPipe1::posProcess1(cv::Mat &img) {
+
+    PreProcess::morphOps(img, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+
+    PreProcess::singleMorph(img, 3, PreProcess::singleOP::ERODE);
 }

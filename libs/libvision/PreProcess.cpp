@@ -65,3 +65,17 @@ void PreProcess::applyBlur(cv::Mat &inputImg, cv::Mat &result, int size, smoothT
     }
 }
 
+void PreProcess::gammaCorrection(cv::Mat src, cv::Mat &dst, double gamma_) {
+
+    cv::Mat lookUpTable(1, 256, CV_8U);
+
+    uchar* p = lookUpTable.ptr();
+
+    for (int i = 0; i < 256; ++i) {
+        p[i] = cv::saturate_cast<uchar>(pow(i / 255.0, gamma_ ) * 255.0);
+    }
+
+    dst = src.clone();
+    cv::LUT(src, lookUpTable, dst);
+}
+
