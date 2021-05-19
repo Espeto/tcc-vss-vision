@@ -1,8 +1,6 @@
 #pragma once
 
 #include <opencv2/core.hpp>
-#include <tuple>
-#include <vector>
 
 class SegExInterface {
     public:

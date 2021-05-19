@@ -5,38 +5,50 @@
 #include <opencv2/highgui.hpp>
 #include <iostream>
 
-SegmentationPipe1::SegmentationPipe1(){
+SegmentationPipe1::SegmentationPipe1()
+{
     this->fc = 1;
 }
 
-std::tuple<std::vector<std::vector<std::vector<cv::Point>>>, 
-std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProcessedImg)
+objectsContours SegmentationPipe1::execute(cv::Mat preProcessedImg)
 {
     std::vector<std::vector<std::vector<cv::Point>>> allPlayersContours(3, std::vector<std::vector<cv::Point>>());
-    std::vector<std::vector<cv::Point>> teamContours;
+    std::vector<std::vector<cv::Point>> teamContours, enemyContours;
+    std::vector<cv::Point> ballContour;
 
-    //Track cor do time
-    {
-        cv::Mat teamThreshold;
-        cv::Scalar teamMin, teamMax;
+    this->segmentBall(preProcessedImg, &ballContour);
+    this->segmentTeam(preProcessedImg, &teamContours);
+    this->segmentPlayers(preProcessedImg, &allPlayersContours);
+    this->segmentEnemy(preProcessedImg, &enemyContours);
 
-        teamMin = Global::getColors()->getAllyMin();
-        teamMax = Global::getColors()->getAllyMax();
+    this->fc++;
 
-        cv::inRange(preProcessedImg, teamMin, teamMax, teamThreshold);
+    return {allPlayersContours, teamContours, ballContour, enemyContours};
+}
 
-        helpers::createImageFile(teamThreshold, this->fc, "team_frames/bposproc/team");
+void SegmentationPipe1::segmentTeam(cv::Mat preProcessedImg, std::vector<std::vector<cv::Point>> *teamContours)
+{
+    cv::Mat teamThreshold;
+    cv::Scalar teamMin, teamMax;
 
-        posProcess1(teamThreshold);
+    teamMin = Global::getColors()->getAllyMin();
+    teamMax = Global::getColors()->getAllyMax();
 
-        helpers::createImageFile(teamThreshold, this->fc, "team_frames/aposproc/team");
+    cv::inRange(preProcessedImg, teamMin, teamMax, teamThreshold);
 
-        cv::imshow("ThresholdSegTeam", teamThreshold);
+    // helpers::createImageFile(teamThreshold, this->fc, "team_frames/bposproc/frame");
 
-        cv::findContours(teamThreshold, teamContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
-    }
+    posProcess1(teamThreshold);
 
-    //Track cor do jogador
+    // helpers::createImageFile(teamThreshold, this->fc, "team_frames/aposproc/frame");
+
+    cv::imshow("ThresholdSegTeam", teamThreshold);
+
+    cv::findContours(teamThreshold, *teamContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+}
+
+void SegmentationPipe1::segmentPlayers(cv::Mat preProcessedImg, std::vector<std::vector<std::vector<cv::Point>>> *allPlayersContours)
+{
     for (int i = 0; i < 3; ++i)
     {
         cv::Scalar playerColorMin, playerColorMax;
@@ -48,38 +60,38 @@ std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProce
 
         cv::inRange(preProcessedImg, playerColorMin, playerColorMax, thresholdPlayer);
 
-        switch (i)
-        {
-        case 0:
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/bposproc/frame");
-            break;
-        
-        case 1:
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/bposproc/frame");
-            break;
+        // switch (i)
+        // {
+        // case 0:
+        //     helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/bposproc/frame");
+        //     break;
 
-        case 2:
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/bposproc/frame");
-            break;
-        }
+        // case 1:
+        //     helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/bposproc/frame");
+        //     break;
 
-        posProcess1(thresholdPlayer);
+        // case 2:
+        //     helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/bposproc/frame");
+        //     break;
+        // }
+
+        posProcessRole(thresholdPlayer);
 
         switch (i)
         {
         case 0:
             cv::imshow("ThresholdSegPlayer1", thresholdPlayer);
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/aposproc/frame");
+            //helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/aposproc/frame");
             break;
-        
+
         case 1:
             cv::imshow("ThresholdSegPlayer2", thresholdPlayer);
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/aposproc/frame");
+            //helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/aposproc/frame");
             break;
 
         case 2:
             cv::imshow("ThresholdSegPlayer3", thresholdPlayer);
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/aposproc/frame");
+            //helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/aposproc/frame");
             break;
         }
 
@@ -97,7 +109,7 @@ std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProce
 
                 playerArea = playerMoment.m00;
 
-                // std::cout<< "Area player " << i << " = " << playerArea << std::endl;
+                std::cout<< "Area player " << i << " = " << playerArea << std::endl;
 
                 if (playerArea >= MIN_DIRECT_AREA && playerArea <= MAX_DIRECT_AREA)
                 {
@@ -106,17 +118,94 @@ std::vector<std::vector<cv::Point>>> SegmentationPipe1::execute(cv::Mat preProce
             }
         }
 
-        allPlayersContours[i] = playersContours;
+        (*allPlayersContours)[i] = playersContours;
     }
-
-    this->fc++;
-
-    return {allPlayersContours, teamContours};
 }
 
-void SegmentationPipe1::posProcess1(cv::Mat &img) {
+void SegmentationPipe1::segmentBall(cv::Mat preProcessedImg, std::vector<cv::Point> *ballContour)
+{
+    std::vector<std::vector<cv::Point>> contours;
+    cv::Mat ballThreshold;
+    cv::Scalar ballMin, ballMax;
+
+    ballMin = Global::getBall()->getHSVMin();
+    ballMax = Global::getBall()->getHSVMax();
+
+    cv::inRange(preProcessedImg, ballMin, ballMax, ballThreshold);
+
+    // helpers::createImageFile(ballThreshold, this->fc, "ball_frames/bposproc/frame");
+
+    posProcessBall(ballThreshold);
+
+    // helpers::createImageFile(ballThreshold, this->fc, "ball_frames/aposproc/frame");
+
+    cv::imshow("ThresholdSegBall", ballThreshold);
+
+    cv::findContours(ballThreshold, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+
+    for (int i = 0; i < contours.size(); ++i)
+    {
+        cv::Moments ballMoment;
+        double ballArea;
+
+        ballMoment = cv::moments(contours[i]);
+
+        ballArea = ballMoment.m00;
+
+        // std::cout<< "Area ball " << i << " = " << playerArea << std::endl;
+
+        if (ballArea >= MIN_BALL_AREA && ballArea <= MAX_BALL_AREA)
+        {
+            *ballContour = contours[i];
+
+            break;
+        }
+    }
+}
+
+void SegmentationPipe1::segmentEnemy(cv::Mat preProcessedImg, std::vector<std::vector<cv::Point>> *enemyContours)
+{
+    cv::Mat enemyThreshold;
+    cv::Scalar enemyMin, enemyMax;
+
+    enemyMin = Global::getColors()->getEnemyMin();
+    enemyMax = Global::getColors()->getEnemyMax();
+
+    cv::inRange(preProcessedImg, enemyMin, enemyMax, enemyThreshold);
+
+    // helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/bposproc/frame");
+
+    posProcess1(enemyThreshold);
+
+    // helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/aposproc/frame");
+
+    //cv::imshow("ThresholdSegEnemy", enemyThreshold);
+
+    cv::findContours(enemyThreshold, *enemyContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+}
+
+void SegmentationPipe1::posProcess1(cv::Mat &img)
+{
 
     PreProcess::morphOps(img, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
 
     PreProcess::singleMorph(img, 3, PreProcess::singleOP::ERODE);
+}
+
+
+
+void SegmentationPipe1::posProcessBall(cv::Mat &img)
+{
+
+    PreProcess::morphOps(img, 5, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+
+    PreProcess::singleMorph(img, 3, PreProcess::singleOP::ERODE);
+}
+
+void SegmentationPipe1::posProcessRole(cv::Mat &img)
+{
+
+    PreProcess::morphOps(img, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+
+    PreProcess::singleMorph(img, 5, PreProcess::singleOP::DILATE);
 }

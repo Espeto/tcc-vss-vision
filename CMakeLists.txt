@@ -10,6 +10,9 @@ add_subdirectory(libs/libobjects)
 add_subdirectory(libs/globals)
 add_subdirectory(libs/libvision)
 add_subdirectory(libs/interfaces)
+add_subdirectory(libs/types)
+
+
 add_subdirectory(classes/Pipe1/PreProcess1)
 add_subdirectory(classes/Pipe1/PreProcess2)
 add_subdirectory(classes/Pipe1/SegEx)

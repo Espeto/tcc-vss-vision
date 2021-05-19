@@ -13,17 +13,17 @@ void PreProcess2Pipe1::execute(cv::Mat src, cv::Mat &dst) {
 
     PreProcess::applyBlur(src, dst, 3, PreProcess::smoothType::GAUSSIAN);
 
-    helpers::createImageFile(dst, frame_counter, "preproc/blurred/frame");
+    // helpers::createImageFile(dst, frame_counter, "preproc/blurred/frame");
 
     PreProcess::gammaCorrection(dst, tmp, 3.9);
 
-    helpers::createImageFile(tmp, frame_counter, "preproc/gamma/frame");
+    cv::imshow("Temp", dst);
 
-    cv::imshow("Temp", tmp);
+    // helpers::createImageFile(tmp, frame_counter, "preproc/gamma/frame");
 
     cv::cvtColor(tmp, dst, cv::COLOR_BGR2HSV);
 
-    helpers::createImageFile(dst, frame_counter, "preproc/converted/frame");
+    // helpers::createImageFile(dst, frame_counter, "preproc/converted/frame");
 
     this->frame_counter++;
 }

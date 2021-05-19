@@ -9,11 +9,13 @@ void PreProcessPipe1::execute(cv::Mat src, cv::Mat &dst) {
 
     cv::Mat tmp;
 
-    PreProcess::gammaCorrection(src, tmp, 5.5);
+    PreProcess::gammaCorrection(src, tmp, 4.0);
 
-    cv::imshow("Temp", tmp);
+    cv::imshow("Temp1", tmp);
 
-    PreProcess::applyBlur(tmp, dst, 3, PreProcess::smoothType::MEDIAN);
+    PreProcess::applyBlur(tmp, dst, 3, PreProcess::smoothType::GAUSSIAN);
+
+    cv::imshow("Temp2", dst);
 
     cv::cvtColor(dst, dst, cv::COLOR_BGR2HSV);
 }

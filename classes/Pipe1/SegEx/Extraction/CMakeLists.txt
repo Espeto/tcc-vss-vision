@@ -1,2 +1,2 @@
 add_library(extractionpipe1 ExtractionPipe1.cpp)
-target_link_libraries(extractionpipe1 PUBLIC PipeInterface Global)
+target_link_libraries(extractionpipe1 PUBLIC PipeInterface Global types)
