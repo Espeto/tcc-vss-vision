@@ -11,13 +11,15 @@ void PreProcess2Pipe1::execute(cv::Mat src, cv::Mat &dst) {
 
     cv::Mat tmp;
 
-    PreProcess::applyBlur(src, dst, 3, PreProcess::smoothType::GAUSSIAN);
+    PreProcess::applyBlur(src, dst, 5, PreProcess::smoothType::AVERAGE);
+
+    cv::imshow("Temp1", dst);
 
     // helpers::createImageFile(dst, frame_counter, "preproc/blurred/frame");
 
-    PreProcess::gammaCorrection(dst, tmp, 3.9);
+    PreProcess::gammaCorrection(dst, tmp, 6.0);
 
-    cv::imshow("Temp", dst);
+    cv::imshow("Temp2", tmp);
 
     // helpers::createImageFile(tmp, frame_counter, "preproc/gamma/frame");
 

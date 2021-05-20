@@ -208,6 +208,7 @@ int main()
     namedWindow("Temp2", WINDOW_NORMAL);
     namedWindow(ball_window, WINDOW_NORMAL);
     namedWindow("ThresholdSegBall");
+    //namedWindow("ThresholdSegEnemy");
 
     namedWindow("ThresholdSegTeam", WINDOW_NORMAL);
     namedWindow("ThresholdSegPlayer1", WINDOW_NORMAL);
@@ -229,8 +230,8 @@ int main()
 
     trackObjs();
 
-    PreProcessPipe1 preprocess = PreProcessPipe1();
-    // PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
+    // PreProcessPipe1 preprocess = PreProcessPipe1();
+    PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
     auto segmentation1 = std::make_unique<SegmentationPipe1>();
     auto extraction1 = std::make_unique<ExtractionPipe1>();
     SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
@@ -281,7 +282,7 @@ int main()
         for (int i = 0; i < 3; i++)
         {
             Robo *r = Global::getAlliedRobots()[i];
-            Robo *enemy = Global::getEnemyRobots()[i];
+            //Robo *enemy = Global::getEnemyRobots()[i];
             cv::Scalar point_color, enemy_color;
 
             switch (i)
@@ -303,7 +304,7 @@ int main()
             }
 
             helpers::drawObject(r->getPosX(), r->getPosY(), point_color, original);
-            helpers::drawObject(enemy->getPosX(), enemy->getPosY(), enemy_color, original);
+            //helpers::drawObject(enemy->getPosX(), enemy->getPosY(), enemy_color, original);
         }
 
         auto *b = Global::getBall();
@@ -334,12 +335,12 @@ void enemyTrackbarsCreator(std::string window_name, void *data)
     static int SEnemyDefMin = 0, SEnemyDefMax = 255;
     static int VEnemyDefMin = 0, VEnemyDefMax = 255;
 
-    createTrackbar("H Def Min", window_name, &HEnemyDefMin, 255, setHDefMin, data);
-    createTrackbar("H Def Max", window_name, &HEnemyDefMax, 179, setHDefMax, data);
-    createTrackbar("S Def Min", window_name, &SEnemyDefMin, 255, setSDefMin, data);
-    createTrackbar("S Def Max", window_name, &SEnemyDefMax, 255, setSDefMax, data);
-    createTrackbar("V Def Min", window_name, &VEnemyDefMin, 255, setSDefMin, data);
-    createTrackbar("V Def Max", window_name, &VEnemyDefMax, 255, setSDefMax, data);
+    createTrackbar("H Def Min", window_name, &HEnemyDefMin, 255, setHEnemyMin, data);
+    createTrackbar("H Def Max", window_name, &HEnemyDefMax, 179, setHEnemyMax, data);
+    createTrackbar("S Def Min", window_name, &SEnemyDefMin, 255, setSEnemyMin, data);
+    createTrackbar("S Def Max", window_name, &SEnemyDefMax, 255, setSEnemyMax, data);
+    createTrackbar("V Def Min", window_name, &VEnemyDefMin, 255, setVEnemyMin, data);
+    createTrackbar("V Def Max", window_name, &VEnemyDefMax, 255, setVEnemyMax, data);
 }
 
 void robot1TrackbarsCreator(std::string window_name, void *data)
@@ -897,6 +898,7 @@ void setHEnemyMin(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
+    Mat aux;
 
     if (data == NULL)
     {
@@ -905,6 +907,8 @@ void setHEnemyMin(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
+
+    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMin();
 
@@ -916,13 +920,14 @@ void setHEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(aux, hsv, maxRange, *cb_data->outDef);
 }
 
 void setSEnemyMin(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
+    Mat aux;
 
     if (data == NULL)
     {
@@ -931,6 +936,8 @@ void setSEnemyMin(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
+
+    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMin();
 
@@ -942,13 +949,14 @@ void setSEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(aux, hsv, maxRange, *cb_data->outDef);
 }
 
 void setVEnemyMin(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
+    Mat aux;
 
     if (data == NULL)
     {
@@ -957,6 +965,8 @@ void setVEnemyMin(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
+
+    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMin();
 
@@ -968,7 +978,7 @@ void setVEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(aux, hsv, maxRange, *cb_data->outDef);
 }
 
 /* Máximos cor do time */
@@ -977,6 +987,7 @@ void setHEnemyMax(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
+    Mat aux;
 
     if (data == NULL)
     {
@@ -985,6 +996,8 @@ void setHEnemyMax(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
+
+    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMax();
 
@@ -996,13 +1009,14 @@ void setHEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(aux, minRange, hsv, *cb_data->outDef);
 }
 
 void setSEnemyMax(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
+    Mat aux;
 
     if (data == NULL)
     {
@@ -1011,6 +1025,8 @@ void setSEnemyMax(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
+
+    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMax();
 
@@ -1022,13 +1038,14 @@ void setSEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(aux, minRange, hsv, *cb_data->outDef);
 }
 
 void setVEnemyMax(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
+    Mat aux;
 
     if (data == NULL)
     {
@@ -1037,6 +1054,8 @@ void setVEnemyMax(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
+
+    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMax();
 
@@ -1048,5 +1067,5 @@ void setVEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(aux, minRange, hsv, *cb_data->outDef);
 }

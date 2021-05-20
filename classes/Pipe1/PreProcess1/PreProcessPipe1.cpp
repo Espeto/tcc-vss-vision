@@ -9,7 +9,7 @@ void PreProcessPipe1::execute(cv::Mat src, cv::Mat &dst) {
 
     cv::Mat tmp;
 
-    PreProcess::gammaCorrection(src, tmp, 4.0);
+    PreProcess::gammaCorrection(src, tmp, 15.0);
 
     cv::imshow("Temp1", tmp);
 

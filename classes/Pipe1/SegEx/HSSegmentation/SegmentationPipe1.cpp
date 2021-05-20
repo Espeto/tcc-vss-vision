@@ -179,7 +179,7 @@ void SegmentationPipe1::segmentEnemy(cv::Mat preProcessedImg, std::vector<std::v
 
     // helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/aposproc/frame");
 
-    //cv::imshow("ThresholdSegEnemy", enemyThreshold);
+    // cv::imshow("ThresholdSegEnemy", enemyThreshold);
 
     cv::findContours(enemyThreshold, *enemyContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 }
@@ -189,7 +189,7 @@ void SegmentationPipe1::posProcess1(cv::Mat &img)
 
     PreProcess::morphOps(img, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
 
-    PreProcess::singleMorph(img, 3, PreProcess::singleOP::ERODE);
+    // PreProcess::singleMorph(img, 3, PreProcess::singleOP::ERODE);
 }
 
 
@@ -197,9 +197,11 @@ void SegmentationPipe1::posProcess1(cv::Mat &img)
 void SegmentationPipe1::posProcessBall(cv::Mat &img)
 {
 
-    PreProcess::morphOps(img, 5, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
+    PreProcess::morphOps(img, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
 
-    PreProcess::singleMorph(img, 3, PreProcess::singleOP::ERODE);
+    PreProcess::morphOps(img, 5, cv::MORPH_CLOSE, 2, PreProcess::morphType::CROSS);
+
+    // PreProcess::singleMorph(img, 5, PreProcess::singleOP::DILATE);
 }
 
 void SegmentationPipe1::posProcessRole(cv::Mat &img)
