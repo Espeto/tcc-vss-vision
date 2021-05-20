@@ -898,7 +898,6 @@ void setHEnemyMin(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
-    Mat aux;
 
     if (data == NULL)
     {
@@ -907,8 +906,6 @@ void setHEnemyMin(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
-
-    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMin();
 
@@ -920,14 +917,13 @@ void setHEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(aux, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
 }
 
 void setSEnemyMin(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
-    Mat aux;
 
     if (data == NULL)
     {
@@ -936,8 +932,6 @@ void setSEnemyMin(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
-
-    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMin();
 
@@ -949,14 +943,13 @@ void setSEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(aux, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
 }
 
 void setVEnemyMin(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
-    Mat aux;
 
     if (data == NULL)
     {
@@ -965,8 +958,6 @@ void setVEnemyMin(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
-
-    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMin();
 
@@ -978,7 +969,7 @@ void setVEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(aux, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
 }
 
 /* Máximos cor do time */
@@ -987,7 +978,6 @@ void setHEnemyMax(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
-    Mat aux;
 
     if (data == NULL)
     {
@@ -996,8 +986,6 @@ void setHEnemyMax(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
-
-    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMax();
 
@@ -1009,14 +997,13 @@ void setHEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(aux, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
 }
 
 void setSEnemyMax(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
-    Mat aux;
 
     if (data == NULL)
     {
@@ -1025,8 +1012,6 @@ void setSEnemyMax(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
-
-    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMax();
 
@@ -1038,14 +1023,13 @@ void setSEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(aux, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
 }
 
 void setVEnemyMax(int pos, void *data)
 {
     CallbackData *cb_data;
     Scalar hsv;
-    Mat aux;
 
     if (data == NULL)
     {
@@ -1054,8 +1038,6 @@ void setVEnemyMax(int pos, void *data)
     }
 
     cb_data = (CallbackData *)data;
-
-    bitwise_not(*cb_data->original, aux);
 
     hsv = colors->getEnemyMax();
 
@@ -1067,5 +1049,5 @@ void setVEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(aux, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
 }
