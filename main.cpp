@@ -149,6 +149,12 @@ int main()
 
     /* INICIALIZAÇÕES */
 
+    // PreProcessPipe1 preprocess = PreProcessPipe1();
+    PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
+    auto segmentation1 = std::make_unique<SegmentationPipe1>();
+    auto extraction1 = std::make_unique<ExtractionPipe1>();
+    SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
+
     std::vector<CallbackData *> ally_data = {new CallbackData, new CallbackData, new CallbackData};
     
     CallbackData ballCallback, enemy_data;
@@ -229,12 +235,6 @@ int main()
     enemyTrackbarsCreator(window_enemy, (void *)&enemy_data);
 
     trackObjs();
-
-    // PreProcessPipe1 preprocess = PreProcessPipe1();
-    PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
-    auto segmentation1 = std::make_unique<SegmentationPipe1>();
-    auto extraction1 = std::make_unique<ExtractionPipe1>();
-    SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
 
     while (1)
     {
