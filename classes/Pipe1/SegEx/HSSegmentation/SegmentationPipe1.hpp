@@ -16,7 +16,7 @@ private:
     const int MAX_BALL_AREA = 700;
 
     const int MIN_OBJECT_AREA = 300;
-    const int MAX_OBEJCT_AREA = 1000;
+    const int MAX_OBJECT_AREA = 900;
 
     int fc;
 
@@ -28,4 +28,5 @@ private:
     void posProcess1(cv::Mat &img);
     void posProcessBall(cv::Mat &img);
     void posProcessRole(cv::Mat &img);
+    void posProcessEnemy(cv::Mat &img);
 };

@@ -149,8 +149,8 @@ int main()
 
     /* INICIALIZAÇÕES */
 
-    // PreProcessPipe1 preprocess = PreProcessPipe1();
-    PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
+    PreProcessPipe1 preprocess = PreProcessPipe1();
+    // PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
     auto segmentation1 = std::make_unique<SegmentationPipe1>();
     auto extraction1 = std::make_unique<ExtractionPipe1>();
     SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
@@ -213,8 +213,8 @@ int main()
     namedWindow("Temp1", WINDOW_NORMAL);
     namedWindow("Temp2", WINDOW_NORMAL);
     namedWindow(ball_window, WINDOW_NORMAL);
-    namedWindow("ThresholdSegBall");
-    //namedWindow("ThresholdSegEnemy");
+    namedWindow("ThresholdSegBall", WINDOW_NORMAL);
+    namedWindow("ThresholdSegEnemy", WINDOW_NORMAL);
 
     namedWindow("ThresholdSegTeam", WINDOW_NORMAL);
     namedWindow("ThresholdSegPlayer1", WINDOW_NORMAL);
@@ -282,7 +282,7 @@ int main()
         for (int i = 0; i < 3; i++)
         {
             Robo *r = Global::getAlliedRobots()[i];
-            //Robo *enemy = Global::getEnemyRobots()[i];
+            Robo *enemy = Global::getEnemyRobots()[i];
             cv::Scalar point_color, enemy_color;
 
             switch (i)
@@ -304,7 +304,7 @@ int main()
             }
 
             helpers::drawObject(r->getPosX(), r->getPosY(), point_color, original);
-            //helpers::drawObject(enemy->getPosX(), enemy->getPosY(), enemy_color, original);
+            helpers::drawObject(enemy->getPosX(), enemy->getPosY(), enemy_color, original);
         }
 
         auto *b = Global::getBall();

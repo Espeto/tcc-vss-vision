@@ -16,10 +16,10 @@ objectsContours SegmentationPipe1::execute(cv::Mat preProcessedImg)
     std::vector<std::vector<cv::Point>> teamContours, enemyContours;
     std::vector<cv::Point> ballContour;
 
-    this->segmentBall(preProcessedImg, &ballContour);
-    this->segmentTeam(preProcessedImg, &teamContours);
-    this->segmentPlayers(preProcessedImg, &allPlayersContours);
-    this->segmentEnemy(preProcessedImg, &enemyContours);
+    this->segmentBall(preProcessedImg.clone(), &ballContour);
+    this->segmentTeam(preProcessedImg.clone(), &teamContours);
+    this->segmentPlayers(preProcessedImg.clone(), &allPlayersContours);
+    this->segmentEnemy(preProcessedImg.clone(), &enemyContours);
 
     this->fc++;
 
@@ -109,7 +109,7 @@ void SegmentationPipe1::segmentPlayers(cv::Mat preProcessedImg, std::vector<std:
 
                 playerArea = playerMoment.m00;
 
-                std::cout<< "Area player " << i << " = " << playerArea << std::endl;
+                std::cout << "Area player " << i << " = " << playerArea << std::endl;
 
                 if (playerArea >= MIN_DIRECT_AREA && playerArea <= MAX_DIRECT_AREA)
                 {
@@ -165,6 +165,7 @@ void SegmentationPipe1::segmentBall(cv::Mat preProcessedImg, std::vector<cv::Poi
 
 void SegmentationPipe1::segmentEnemy(cv::Mat preProcessedImg, std::vector<std::vector<cv::Point>> *enemyContours)
 {
+    std::vector<std::vector<cv::Point>> tempContours;
     cv::Mat enemyThreshold;
     cv::Scalar enemyMin, enemyMax;
 
@@ -175,13 +176,28 @@ void SegmentationPipe1::segmentEnemy(cv::Mat preProcessedImg, std::vector<std::v
 
     // helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/bposproc/frame");
 
-    posProcess1(enemyThreshold);
+    posProcessEnemy(enemyThreshold);
 
     // helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/aposproc/frame");
 
-    // cv::imshow("ThresholdSegEnemy", enemyThreshold);
+    cv::imshow("ThresholdSegEnemy", enemyThreshold);
 
-    cv::findContours(enemyThreshold, *enemyContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+    cv::findContours(enemyThreshold, tempContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+
+    for (int i = 0; i < tempContours.size(); ++i)
+    {
+        cv::Moments enemyMoments;
+        double enemyArea;
+
+        enemyMoments = cv::moments(tempContours[i]);
+
+        enemyArea = enemyMoments.m00;
+
+        if (enemyArea >= MIN_OBJECT_AREA && enemyArea <= MAX_OBJECT_AREA)
+        {
+            enemyContours->push_back(tempContours[i]);
+        }
+    }
 }
 
 void SegmentationPipe1::posProcess1(cv::Mat &img)
@@ -192,7 +208,12 @@ void SegmentationPipe1::posProcess1(cv::Mat &img)
     // PreProcess::singleMorph(img, 3, PreProcess::singleOP::ERODE);
 }
 
+void SegmentationPipe1::posProcessEnemy(cv::Mat &img)
+{
+    PreProcess::morphOps(img, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
 
+    PreProcess::morphOps(img, 5, cv::MORPH_CLOSE, 2, PreProcess::morphType::CROSS);
+}
 
 void SegmentationPipe1::posProcessBall(cv::Mat &img)
 {

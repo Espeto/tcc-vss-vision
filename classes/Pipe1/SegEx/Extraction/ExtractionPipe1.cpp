@@ -20,7 +20,7 @@ void ExtractionPipe1::execute(objectsContours contours)
     // std::cout << "Size All roles [Tem que ser 3 ou menos] = " << rolesContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
     extractPlayer(rolesContour, teamContour);
     extractBall(ballContour);
-    //extractEnemy(enemyContours);
+    extractEnemy(enemyContours);
     
 }
 
@@ -63,6 +63,8 @@ void ExtractionPipe1::extractPlayer(
                     cv::Moments teamMoments = cv::moments(teamContour[j]);
                     double teamArea = teamMoments.m00;
 
+                    std::cout << "Team area = " << teamArea << std::endl;
+
                     int teamX = static_cast<int>(teamMoments.m10 / teamArea);
                     int teamY = static_cast<int>(teamMoments.m01 / teamArea);
 
@@ -73,7 +75,7 @@ void ExtractionPipe1::extractPlayer(
 
                     dist = std::sqrt(std::pow(xDif, 2.0) + std::pow(yDif, 2.0));
 
-                    std::cout << "Role [" << k << "] | Time [" << j << "] | Distancia = " << dist << std::endl;
+                    //std::cout << "Role [" << k << "] | Time [" << j << "] | Distancia = " << dist << std::endl;
 
                     if (dist > 11.0 && dist < 16.0)
                     {
@@ -118,7 +120,7 @@ void ExtractionPipe1::extractBall(std::vector<cv::Point> ballContour)
     b->setPosY(ball_y);
 }
 
-void extractEnemy(std::vector<std::vector<cv::Point>> enemyContours)
+void ExtractionPipe1::extractEnemy(std::vector<std::vector<cv::Point>> enemyContours)
 {
     for (int i = 0; i < enemyContours.size(); ++i) {
 
