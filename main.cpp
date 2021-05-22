@@ -249,7 +249,7 @@ int main()
             segex1.execute(filteredImg);
             t = ((double)getTickCount() - t) / getTickFrequency();
 
-            std::cout << "Tempo: [" << t << "]" << std::endl;
+            std::cout << t << std::endl;
         }
         else
         {
