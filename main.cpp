@@ -12,6 +12,8 @@
 
 #include "classes/Pipe1/PreProcess1/PreProcessPipe1.hpp"
 #include "classes/Pipe1/PreProcess2/PreProcess2Pipe1.hpp"
+#include "classes/Pipe1/PreProcess3/PreProcess3Pipe1.hpp"
+
 #include "classes/Pipe1/SegEx/SegexPipe1.hpp"
 #include "classes/Pipe1/SegEx/HSSegmentation/SegmentationPipe1.hpp"
 #include "classes/Pipe1/SegEx/Extraction/ExtractionPipe1.hpp"
@@ -148,6 +150,7 @@ int main()
 
     PreProcessPipe1 preprocess = PreProcessPipe1();
     // PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
+    // PreProcess3Pipe1 preprocess = PreProcess3Pipe1();
     auto segmentation1 = std::make_unique<SegmentationPipe1>();
     auto extraction1 = std::make_unique<ExtractionPipe1>();
     SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());

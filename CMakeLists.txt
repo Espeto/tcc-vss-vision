@@ -15,6 +15,7 @@ add_subdirectory(libs/types)
 
 add_subdirectory(classes/Pipe1/PreProcess1)
 add_subdirectory(classes/Pipe1/PreProcess2)
+add_subdirectory(classes/Pipe1/PreProcess3)
 add_subdirectory(classes/Pipe1/SegEx)
 add_subdirectory(classes/Pipe1/SegEx/Extraction)
 add_subdirectory(classes/Pipe1/SegEx/HSSegmentation)
@@ -25,7 +26,7 @@ target_link_libraries(
     TCC PUBLIC ${OpenCV_LIBS} 
     PipeInterface
     PreProcess Robo Ball Colors Global Helper
-    preprocesspipe1 preprocess2pipe1 segexpipe1 segmentationpipe1 extractionpipe1
+    preprocesspipe1 preprocess2pipe1 preprocess3pipe1 segexpipe1 segmentationpipe1 extractionpipe1
 )
 
 target_include_directories(TCC PUBLIC
