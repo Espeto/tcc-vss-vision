@@ -134,7 +134,7 @@ int main()
    
    int phc = 1;
 
-    std::string videoPath = "../videos/teste_final.webm";
+    std::string videoPath = "../videos/escurecido.webm";
 
     cap.open(videoPath);
 
@@ -148,9 +148,9 @@ int main()
 
     /* INICIALIZAÇÕES */
 
-    PreProcessPipe1 preprocess = PreProcessPipe1();
+    // PreProcessPipe1 preprocess = PreProcessPipe1();
     // PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
-    // PreProcess3Pipe1 preprocess = PreProcess3Pipe1();
+    PreProcess3Pipe1 preprocess = PreProcess3Pipe1();
     auto segmentation1 = std::make_unique<SegmentationPipe1>();
     auto extraction1 = std::make_unique<ExtractionPipe1>();
     SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
@@ -204,19 +204,21 @@ int main()
     namedWindow(out_dir_3, WINDOW_NORMAL);
 
     namedWindow("Run Track");
-    //namedWindow("PreP img");
+    
+    namedWindow(ball_window, WINDOW_NORMAL);
+    namedWindow(window_enemy, WINDOW_NORMAL);
+    
+    /* namedWindow("PreP img");
     namedWindow("Temp1", WINDOW_NORMAL);
     namedWindow("Temp2", WINDOW_NORMAL);
-    namedWindow(ball_window, WINDOW_NORMAL);
     namedWindow("ThresholdSegBall", WINDOW_NORMAL);
     namedWindow("ThresholdSegEnemy", WINDOW_NORMAL);
-
     namedWindow("ThresholdSegTeam", WINDOW_NORMAL);
     namedWindow("ThresholdSegPlayer1", WINDOW_NORMAL);
     namedWindow("ThresholdSegPlayer2", WINDOW_NORMAL);
-    namedWindow("ThresholdSegPlayer3", WINDOW_NORMAL);
+    namedWindow("ThresholdSegPlayer3", WINDOW_NORMAL); */
 
-    namedWindow(window_enemy, WINDOW_NORMAL);
+    
    
     /* FIM JANELAS */
 
@@ -241,13 +243,13 @@ int main()
 
         if (val)
         {
-            // double t = (double)getTickCount();
+            double t = (double)getTickCount();
             preprocess.execute(original, filteredImg);
             //imshow("PreP img", filteredImg);
             segex1.execute(filteredImg);
-            // t = ((double)getTickCount() - t) / getTickFrequency();
+            t = ((double)getTickCount() - t) / getTickFrequency();
 
-            // std::cout << "Tempo processamento apenas aliados: [" << t << "]" << std::endl;
+            std::cout << "Tempo: [" << t << "]" << std::endl;
         }
         else
         {

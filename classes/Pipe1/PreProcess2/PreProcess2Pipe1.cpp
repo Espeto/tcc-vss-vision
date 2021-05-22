@@ -11,7 +11,7 @@ void PreProcess2Pipe1::execute(cv::Mat src, cv::Mat &dst) {
 
     cv::Mat tmp;
 
-    PreProcess::applyBlur(src, dst, 5, PreProcess::smoothType::AVERAGE);
+    PreProcess::applyBlur(src, dst, 5, PreProcess::smoothType::GAUSSIAN);
 
     cv::imshow("Temp1", dst);
 

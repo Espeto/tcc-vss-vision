@@ -10,7 +10,7 @@ public:
 
 private:
     const int MIN_DIRECT_AREA = 150;
-    const int MAX_DIRECT_AREA = 350;
+    const int MAX_DIRECT_AREA = 450;
 
     const int MIN_BALL_AREA = 200;
     const int MAX_BALL_AREA = 700;

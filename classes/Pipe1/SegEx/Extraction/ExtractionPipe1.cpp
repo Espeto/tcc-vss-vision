@@ -41,7 +41,7 @@ void ExtractionPipe1::extractPlayer(
 
         std::vector<std::vector<cv::Point>> roleContour = rolesContour[i];
 
-        std::cout << "Num roles for robot [" << i << "] = " << roleContour.size() << std::endl;
+        // std::cout << "Num roles for robot [" << i << "] = " << roleContour.size() << std::endl;
 
         for (int k = 0; k < roleContour.size(); ++k)
         {
@@ -63,7 +63,7 @@ void ExtractionPipe1::extractPlayer(
                     cv::Moments teamMoments = cv::moments(teamContour[j]);
                     double teamArea = teamMoments.m00;
 
-                    std::cout << "Team area = " << teamArea << std::endl;
+                    // std::cout << "Team area = " << teamArea << std::endl;
 
                     int teamX = static_cast<int>(teamMoments.m10 / teamArea);
                     int teamY = static_cast<int>(teamMoments.m01 / teamArea);
@@ -94,9 +94,6 @@ void ExtractionPipe1::extractPlayer(
                         found = true;
 
                         break;
-
-                        // Se encontrou tem que dar continue no for e seguir pra cor
-                        // do proximo role
                     }
                 }
             }
