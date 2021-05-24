@@ -133,7 +133,7 @@ int main()
 
     CallbackData ballCallback, enemy_data;
    
-   int phc = 1;
+   int phc = 2;
 
     std::string videoPath = "../videos/escurecido.webm";
 
@@ -151,8 +151,8 @@ int main()
 
     // PreProcessPipe1 preprocess = PreProcessPipe1();
     // PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
-    // PreProcess3Pipe1 preprocess = PreProcess3Pipe1();
-    PreProcess4 preprocess = PreProcess4();
+    PreProcess3Pipe1 preprocess = PreProcess3Pipe1();
+    // PreProcess4 preprocess = PreProcess4();
 
     auto segmentation1 = std::make_unique<SegmentationPipe1>();
     auto extraction1 = std::make_unique<ExtractionPipe1>();
@@ -248,11 +248,15 @@ int main()
         {
             double t = (double)getTickCount();
             preprocess.execute(original, filteredImg);
-            //imshow("PreP img", filteredImg);
-            segex1.execute(filteredImg);
             t = ((double)getTickCount() - t) / getTickFrequency();
 
-            std::cout << t << std::endl;
+            std::cout << "PreProcess Time: " << t << std::endl;
+
+            //imshow("PreP img", filteredImg);
+            segex1.execute(filteredImg);
+            
+
+            
         }
         else
         {
@@ -313,7 +317,7 @@ int main()
 
         imshow(original_window, original);
 
-        // helpers::createImageFile(original, phc++, "original/frame");
+        helpers::createImageFile(original, phc++, "original/frame");
 
         waitKey(15);
     }

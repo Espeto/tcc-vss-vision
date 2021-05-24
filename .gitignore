@@ -5,3 +5,6 @@ build/
 Images/outputs
 
 videos
+extract.txt
+preproc.txt
+segment.txt
