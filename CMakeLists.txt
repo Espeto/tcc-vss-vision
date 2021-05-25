@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project( TCC )
 
 find_package( OpenCV REQUIRED )
+find_package( OpenMP REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 add_subdirectory(libs/helpers)
@@ -24,7 +25,7 @@ add_subdirectory(classes/Pipe1/SegEx/HSSegmentation)
 add_executable( TCC main.cpp )
 
 target_link_libraries( 
-    TCC PUBLIC ${OpenCV_LIBS} 
+    TCC PUBLIC ${OpenCV_LIBS} OpenMP::OpenMP_CXX
     PipeInterface
     PreProcess Robo Ball Colors Global Helper
     preprocesspipe1 preprocess2pipe1 preprocess3pipe1 preprocess4 segexpipe1 segmentationpipe1 extractionpipe1
