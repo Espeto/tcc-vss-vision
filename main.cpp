@@ -246,11 +246,11 @@ int main()
 
         if (val)
         {
-            double t = (double)getTickCount();
+            //double t = (double)getTickCount();
             preprocess.execute(original, filteredImg);
-            t = ((double)getTickCount() - t) / getTickFrequency();
+            //t = ((double)getTickCount() - t) / getTickFrequency();
 
-            std::cout << "PreProcess Time: " << t << std::endl;
+            //std::cout << "PreProcess Time: " << t << std::endl;
 
             //imshow("PreP img", filteredImg);
             segex1.execute(filteredImg);
