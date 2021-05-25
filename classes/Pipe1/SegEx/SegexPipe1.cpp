@@ -18,9 +18,9 @@ void SegexPipe1::execute(cv::Mat preProcessedImg)
 
     std::cout << "Segmentation time: " << t << std::endl;
 
-    t = (double)cv::getTickCount();
+    //t = (double)cv::getTickCount();
     this->_extraction->execute(contours);
-    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    //t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
 
-    std::cout << "Extraction time: " << t << std::endl;
+    //std::cout << "Extraction time: " << t << std::endl;
 }
