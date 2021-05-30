@@ -22,6 +22,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <fstream>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -133,7 +134,9 @@ int main()
 
     CallbackData ballCallback, enemy_data;
    
-   int phc = 2;
+    int phc = 2;
+
+    std::ofstream ofs("../test_json.json");
 
     std::string videoPath = "../videos/escurecido.webm";
 
@@ -246,13 +249,14 @@ int main()
 
         if (val)
         {
-            double t = (double)getTickCount();
+            // double t = (double)getTickCount();
             preprocess.execute(original, filteredImg);
-            segex1.execute(filteredImg);
-            t = ((double)getTickCount() - t) / getTickFrequency();
+            // t = ((double)getTickCount() - t) / getTickFrequency();
 
-            //std::cout << "PreProcess Time: " << t << std::endl;
-            std::cout << "Total Time: " << t << std::endl;
+            segex1.execute(filteredImg);
+
+            // std::cout << "PreProcess Time: " << t << std::endl;
+            // std::cout << "Total Time: " << t << std::endl;
             //imshow("PreP img", filteredImg);
             
         }
@@ -321,6 +325,8 @@ int main()
     }
 
     destroyAllWindows();
+
+    ofs.close();
 
     return 0;
 }

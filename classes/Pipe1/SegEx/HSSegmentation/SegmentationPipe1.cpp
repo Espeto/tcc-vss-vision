@@ -17,27 +17,28 @@ objectsContours SegmentationPipe1::execute(cv::Mat preProcessedImg)
     std::vector<std::vector<cv::Point>> teamContours, enemyContours;
     std::vector<cv::Point> ballContour;
 
-    #pragma omp task
+    // #pragma omp task
     this->segmentBall(preProcessedImg.clone(), &ballContour);
 
-    #pragma omp task
+    // #pragma omp task
     this->segmentTeam(preProcessedImg.clone(), &teamContours);
 
-    #pragma omp task
+    // #pragma omp task
     this->segmentPlayers(preProcessedImg.clone(), &allPlayersContours);
 
-    #pragma omp task
+    // #pragma omp task
     this->segmentEnemy(preProcessedImg.clone(), &enemyContours);
 
-    //this->fc++;
+    this->fc++;
 
-    #pragma omp taskwait
+    // #pragma omp taskwait
 
     return {allPlayersContours, teamContours, ballContour, enemyContours};
 }
 
 void SegmentationPipe1::segmentTeam(cv::Mat preProcessedImg, std::vector<std::vector<cv::Point>> *teamContours)
 {
+    std::vector<std::vector<cv::Point>> tempContours;
     cv::Mat teamThreshold;
     cv::Scalar teamMin, teamMax;
 
@@ -46,20 +47,41 @@ void SegmentationPipe1::segmentTeam(cv::Mat preProcessedImg, std::vector<std::ve
 
     cv::inRange(preProcessedImg, teamMin, teamMax, teamThreshold);
 
-    // helpers::createImageFile(teamThreshold, this->fc, "team_frames/bposproc/frame");
+    if (this->fc > 504 && this->fc < 1500)
+    {
+        helpers::createImageFile(teamThreshold, this->fc, "team_frames/bposproc/frame");
+    }
 
     posProcess1(teamThreshold);
 
-    // helpers::createImageFile(teamThreshold, this->fc, "team_frames/aposproc/frame");
+    if (this->fc > 504 && this->fc < 1500)
+    {
+        helpers::createImageFile(teamThreshold, this->fc, "team_frames/aposproc/frame");
+    }
 
     // cv::imshow("ThresholdSegTeam", teamThreshold);
 
     cv::findContours(teamThreshold, *teamContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+
+    for (int i = 0; i < tempContours.size(); ++i)
+    {
+        cv::Moments teamMoments;
+        double teamArea;
+
+        teamMoments = cv::moments(tempContours[i]);
+
+        teamArea = teamMoments.m00;
+
+        if (teamArea >= MIN_OBJECT_AREA && teamArea <= MAX_OBJECT_AREA)
+        {
+            teamContours->push_back(tempContours[i]);
+        }
+    }
 }
 
 void SegmentationPipe1::segmentPlayers(cv::Mat preProcessedImg, std::vector<std::vector<std::vector<cv::Point>>> *allPlayersContours)
 {
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int i = 0; i < 3; ++i)
     {
         cv::Scalar playerColorMin, playerColorMax;
@@ -71,40 +93,46 @@ void SegmentationPipe1::segmentPlayers(cv::Mat preProcessedImg, std::vector<std:
 
         cv::inRange(preProcessedImg, playerColorMin, playerColorMax, thresholdPlayer);
 
-       /*  switch (i)
+        if (this->fc > 504 && this->fc < 1500)
         {
-        case 0:
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/bposproc/frame");
-            break;
+            switch (i)
+            {
+            case 0:
+                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/bposproc/frame");
+                break;
 
-        case 1:
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/bposproc/frame");
-            break;
+            case 1:
+                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/bposproc/frame");
+                break;
 
-        case 2:
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/bposproc/frame");
-            break;
-        } */
+            case 2:
+                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/bposproc/frame");
+                break;
+            }
+        }
 
         posProcessRole(thresholdPlayer);
 
-      /*   switch (i)
+        if (this->fc > 504 && this->fc < 1500)
         {
-        case 0:
-            cv::imshow("ThresholdSegPlayer1", thresholdPlayer);
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/aposproc/frame");
-            break;
+            switch (i)
+            {
+            case 0:
+                // cv::imshow("ThresholdSegPlayer1", thresholdPlayer);
+                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/aposproc/frame");
+                break;
 
-        case 1:
-            cv::imshow("ThresholdSegPlayer2", thresholdPlayer);
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/aposproc/frame");
-            break;
+            case 1:
+                // cv::imshow("ThresholdSegPlayer2", thresholdPlayer);
+                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/aposproc/frame");
+                break;
 
-        case 2:
-            cv::imshow("ThresholdSegPlayer3", thresholdPlayer);
-            helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/aposproc/frame");
-            break;
-        } */
+            case 2:
+                // cv::imshow("ThresholdSegPlayer3", thresholdPlayer);
+                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/aposproc/frame");
+                break;
+            }
+        }
 
         cv::findContours(thresholdPlayer, playerContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
@@ -120,7 +148,7 @@ void SegmentationPipe1::segmentPlayers(cv::Mat preProcessedImg, std::vector<std:
 
                 playerArea = playerMoment.m00;
 
-                //std::cout << "Area player " << i << " = " << playerArea << std::endl;
+                // std::cout << "Area player [" << i << "]["<< j << "][" << this->fc << "] = " << playerArea << std::endl;
 
                 if (playerArea >= MIN_DIRECT_AREA && playerArea <= MAX_DIRECT_AREA)
                 {
@@ -144,11 +172,17 @@ void SegmentationPipe1::segmentBall(cv::Mat preProcessedImg, std::vector<cv::Poi
 
     cv::inRange(preProcessedImg, ballMin, ballMax, ballThreshold);
 
-    // helpers::createImageFile(ballThreshold, this->fc, "ball_frames/bposproc/frame");
+    if (this->fc > 504 && this->fc < 1500)
+    {
+        helpers::createImageFile(ballThreshold, this->fc, "ball_frames/bposproc/frame");
+    }
 
     posProcessBall(ballThreshold);
 
-    // helpers::createImageFile(ballThreshold, this->fc, "ball_frames/aposproc/frame");
+    if (this->fc > 504 && this->fc < 1500)
+    {
+        helpers::createImageFile(ballThreshold, this->fc, "ball_frames/aposproc/frame");
+    }
 
     //cv::imshow("ThresholdSegBall", ballThreshold);
 
@@ -185,11 +219,17 @@ void SegmentationPipe1::segmentEnemy(cv::Mat preProcessedImg, std::vector<std::v
 
     cv::inRange(preProcessedImg, enemyMin, enemyMax, enemyThreshold);
 
-    // helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/bposproc/frame");
+    if (this->fc > 504 && this->fc < 1500)
+    {
+        helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/bposproc/frame");
+    }
 
     posProcessEnemy(enemyThreshold);
 
-    // helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/aposproc/frame");
+    if (this->fc > 504 && this->fc < 1500)
+    {
+        helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/aposproc/frame");
+    }
 
     //cv::imshow("ThresholdSegEnemy", enemyThreshold);
 
@@ -232,7 +272,6 @@ void SegmentationPipe1::posProcessBall(cv::Mat &img)
     PreProcess::morphOps(img, 3, cv::MORPH_OPEN, 1, PreProcess::morphType::CROSS);
 
     PreProcess::morphOps(img, 5, cv::MORPH_CLOSE, 2, PreProcess::morphType::CROSS);
-
 }
 
 void SegmentationPipe1::posProcessRole(cv::Mat &img)

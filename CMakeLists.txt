@@ -22,13 +22,15 @@ add_subdirectory(classes/Pipe1/SegEx)
 add_subdirectory(classes/Pipe1/SegEx/Extraction)
 add_subdirectory(classes/Pipe1/SegEx/HSSegmentation)
 
+
 add_executable( TCC main.cpp )
 
 target_link_libraries( 
     TCC PUBLIC ${OpenCV_LIBS} OpenMP::OpenMP_CXX
     PipeInterface
     PreProcess Robo Ball Colors Global Helper
-    preprocesspipe1 preprocess2pipe1 preprocess3pipe1 preprocess4 segexpipe1 segmentationpipe1 extractionpipe1
+    preprocesspipe1 preprocess2pipe1 preprocess3pipe1 preprocess4
+    segexpipe1 segmentationpipe1 extractionpipe1
 )
 
 target_include_directories(TCC PUBLIC

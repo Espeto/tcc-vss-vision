@@ -13,11 +13,11 @@ void SegexPipe1::execute(cv::Mat preProcessedImg)
     objectsContours contours;
     // double t;
 
-    //t = (double)cv::getTickCount();
+    // t = (double)cv::getTickCount();
     contours = this->_segmentation->execute(preProcessedImg);
-    //t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    // t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
 
-    //std::cout << "Segmentation time: " << t << std::endl;
+    // std::cout << "Segmentation time: " << t << std::endl;
 
     // t = (double)cv::getTickCount();
     this->_extraction->execute(contours);

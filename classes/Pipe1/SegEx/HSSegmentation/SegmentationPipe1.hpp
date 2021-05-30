@@ -9,7 +9,7 @@ public:
     objectsContours execute(cv::Mat preProcessedImg);
 
 private:
-    const int MIN_DIRECT_AREA = 150;
+    const int MIN_DIRECT_AREA = 118;
     const int MAX_DIRECT_AREA = 510;
 
     const int MIN_BALL_AREA = 200;

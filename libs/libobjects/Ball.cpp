@@ -17,8 +17,8 @@ using namespace cv;
 
 Ball::Ball() {
 
-    Ball::setHSVMin(Scalar(0, 136, 202));
-    Ball::setHSVMax(Scalar(18, 255, 255));
+    Ball::setHSVMin(Scalar(0, 147, 0));
+    Ball::setHSVMax(Scalar(23, 255, 255));
 }
 
 Ball::~Ball() {
