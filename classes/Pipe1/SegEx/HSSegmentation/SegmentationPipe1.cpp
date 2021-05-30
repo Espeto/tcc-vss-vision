@@ -18,16 +18,16 @@ objectsContours SegmentationPipe1::execute(cv::Mat preProcessedImg)
     std::vector<cv::Point> ballContour;
 
     // #pragma omp task
-    this->segmentBall(preProcessedImg.clone(), &ballContour);
+    this->segmentBall(preProcessedImg, &ballContour);
 
     // #pragma omp task
-    this->segmentTeam(preProcessedImg.clone(), &teamContours);
+    this->segmentTeam(preProcessedImg, &teamContours);
 
     // #pragma omp task
-    this->segmentPlayers(preProcessedImg.clone(), &allPlayersContours);
+    this->segmentPlayers(preProcessedImg, &allPlayersContours);
 
     // #pragma omp task
-    this->segmentEnemy(preProcessedImg.clone(), &enemyContours);
+    this->segmentEnemy(preProcessedImg, &enemyContours);
 
     this->fc++;
 
@@ -47,17 +47,17 @@ void SegmentationPipe1::segmentTeam(cv::Mat preProcessedImg, std::vector<std::ve
 
     cv::inRange(preProcessedImg, teamMin, teamMax, teamThreshold);
 
-    if (this->fc > 504 && this->fc < 1500)
-    {
-        helpers::createImageFile(teamThreshold, this->fc, "team_frames/bposproc/frame");
-    }
+    // if (this->fc > 504 && this->fc < 1500)
+    // {
+    //     helpers::createImageFile(teamThreshold, this->fc, "team_frames/bposproc/frame");
+    // }
 
     posProcess1(teamThreshold);
 
-    if (this->fc > 504 && this->fc < 1500)
-    {
-        helpers::createImageFile(teamThreshold, this->fc, "team_frames/aposproc/frame");
-    }
+    // if (this->fc > 504 && this->fc < 1500)
+    // {
+    //     helpers::createImageFile(teamThreshold, this->fc, "team_frames/aposproc/frame");
+    // }
 
     // cv::imshow("ThresholdSegTeam", teamThreshold);
 
@@ -93,46 +93,46 @@ void SegmentationPipe1::segmentPlayers(cv::Mat preProcessedImg, std::vector<std:
 
         cv::inRange(preProcessedImg, playerColorMin, playerColorMax, thresholdPlayer);
 
-        if (this->fc > 504 && this->fc < 1500)
-        {
-            switch (i)
-            {
-            case 0:
-                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/bposproc/frame");
-                break;
+        // if (this->fc > 504 && this->fc < 1500)
+        // {
+        //     switch (i)
+        //     {
+        //     case 0:
+        //         helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/bposproc/frame");
+        //         break;
 
-            case 1:
-                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/bposproc/frame");
-                break;
+        //     case 1:
+        //         helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/bposproc/frame");
+        //         break;
 
-            case 2:
-                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/bposproc/frame");
-                break;
-            }
-        }
+        //     case 2:
+        //         helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/bposproc/frame");
+        //         break;
+        //     }
+        // }
 
         posProcessRole(thresholdPlayer);
 
-        if (this->fc > 504 && this->fc < 1500)
-        {
-            switch (i)
-            {
-            case 0:
-                // cv::imshow("ThresholdSegPlayer1", thresholdPlayer);
-                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/aposproc/frame");
-                break;
+        // if (this->fc > 504 && this->fc < 1500)
+        // {
+        //     switch (i)
+        //     {
+        //     case 0:
+        //         // cv::imshow("ThresholdSegPlayer1", thresholdPlayer);
+        //         helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player1/aposproc/frame");
+        //         break;
 
-            case 1:
-                // cv::imshow("ThresholdSegPlayer2", thresholdPlayer);
-                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/aposproc/frame");
-                break;
+        //     case 1:
+        //         // cv::imshow("ThresholdSegPlayer2", thresholdPlayer);
+        //         helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player2/aposproc/frame");
+        //         break;
 
-            case 2:
-                // cv::imshow("ThresholdSegPlayer3", thresholdPlayer);
-                helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/aposproc/frame");
-                break;
-            }
-        }
+        //     case 2:
+        //         // cv::imshow("ThresholdSegPlayer3", thresholdPlayer);
+        //         helpers::createImageFile(thresholdPlayer, this->fc, "dir_frames/player3/aposproc/frame");
+        //         break;
+        //     }
+        // }
 
         cv::findContours(thresholdPlayer, playerContours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
@@ -172,17 +172,17 @@ void SegmentationPipe1::segmentBall(cv::Mat preProcessedImg, std::vector<cv::Poi
 
     cv::inRange(preProcessedImg, ballMin, ballMax, ballThreshold);
 
-    if (this->fc > 504 && this->fc < 1500)
-    {
-        helpers::createImageFile(ballThreshold, this->fc, "ball_frames/bposproc/frame");
-    }
+    // if (this->fc > 504 && this->fc < 1500)
+    // {
+    //     helpers::createImageFile(ballThreshold, this->fc, "ball_frames/bposproc/frame");
+    // }
 
     posProcessBall(ballThreshold);
 
-    if (this->fc > 504 && this->fc < 1500)
-    {
-        helpers::createImageFile(ballThreshold, this->fc, "ball_frames/aposproc/frame");
-    }
+    // if (this->fc > 504 && this->fc < 1500)
+    // {
+    //     helpers::createImageFile(ballThreshold, this->fc, "ball_frames/aposproc/frame");
+    // }
 
     //cv::imshow("ThresholdSegBall", ballThreshold);
 
@@ -219,17 +219,17 @@ void SegmentationPipe1::segmentEnemy(cv::Mat preProcessedImg, std::vector<std::v
 
     cv::inRange(preProcessedImg, enemyMin, enemyMax, enemyThreshold);
 
-    if (this->fc > 504 && this->fc < 1500)
-    {
-        helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/bposproc/frame");
-    }
+    // if (this->fc > 504 && this->fc < 1500)
+    // {
+    //     helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/bposproc/frame");
+    // }
 
     posProcessEnemy(enemyThreshold);
 
-    if (this->fc > 504 && this->fc < 1500)
-    {
-        helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/aposproc/frame");
-    }
+    // if (this->fc > 504 && this->fc < 1500)
+    // {
+    //     helpers::createImageFile(enemyThreshold, this->fc, "enemy_frames/aposproc/frame");
+    // }
 
     //cv::imshow("ThresholdSegEnemy", enemyThreshold);
 
