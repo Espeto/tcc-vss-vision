@@ -17,21 +17,21 @@ objectsContours SegmentationPipe1::execute(cv::Mat preProcessedImg)
     std::vector<std::vector<cv::Point>> teamContours, enemyContours;
     std::vector<cv::Point> ballContour;
 
-    // #pragma omp task
+    #pragma omp task
     this->segmentBall(preProcessedImg, &ballContour);
 
-    // #pragma omp task
+    #pragma omp task
     this->segmentTeam(preProcessedImg, &teamContours);
 
-    // #pragma omp task
+    #pragma omp task
     this->segmentPlayers(preProcessedImg, &allPlayersContours);
 
-    // #pragma omp task
+    #pragma omp task
     this->segmentEnemy(preProcessedImg, &enemyContours);
 
     this->fc++;
 
-    // #pragma omp taskwait
+    #pragma omp taskwait
 
     return {allPlayersContours, teamContours, ballContour, enemyContours};
 }
@@ -81,7 +81,7 @@ void SegmentationPipe1::segmentTeam(cv::Mat preProcessedImg, std::vector<std::ve
 
 void SegmentationPipe1::segmentPlayers(cv::Mat preProcessedImg, std::vector<std::vector<std::vector<cv::Point>>> *allPlayersContours)
 {
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for (int i = 0; i < 3; ++i)
     {
         cv::Scalar playerColorMin, playerColorMax;
