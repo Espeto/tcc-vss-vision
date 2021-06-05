@@ -18,13 +18,13 @@ void ExtractionPipe1::execute(objectsContours contours)
     enemyContours = contours.enemyContours;
 
     // std::cout << "Size All roles [Tem que ser 3 ou menos] = " << rolesContour.size() << " | " << "Size team = " << teamContour.size() << std::endl;
-    #pragma omp task
+    // #pragma omp task
     extractPlayer(rolesContour, teamContour);
 
-    #pragma omp task
+    // #pragma omp task
     extractBall(ballContour);
 
-    #pragma omp task
+    // #pragma omp task
     extractEnemy(enemyContours);
     
 }
@@ -37,7 +37,7 @@ void ExtractionPipe1::extractPlayer(
 
     alreadyUsed = std::vector<int>(teamContour.size(), 0);
 
-    #pragma omp parallel for shared(alreadyUsed)
+    // #pragma omp parallel for shared(alreadyUsed)
     for (int i = 0; i < rolesContour.size(); ++i)
     {
 
@@ -85,7 +85,7 @@ void ExtractionPipe1::extractPlayer(
 
                     if (dist > 11.0 && dist < 16.0)
                     {
-                        #pragma omp critical
+                        // #pragma omp critical
                         alreadyUsed[j] = 1;
 
                         int robot_x = static_cast<int>((playerX + teamX) / 2);
@@ -126,7 +126,7 @@ void ExtractionPipe1::extractBall(std::vector<cv::Point> ballContour)
 
 void ExtractionPipe1::extractEnemy(std::vector<std::vector<cv::Point>> enemyContours)
 {
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int i = 0; i < enemyContours.size(); ++i) {
 
         Robo *enemy = Global::getEnemyRobots()[i];
