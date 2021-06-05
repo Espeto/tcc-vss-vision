@@ -1,0 +1,2 @@
+add_library(segmentation2 Segmentation2.cpp)
+target_link_libraries(segmentation2 PUBLIC PipeInterface Global PreProcess Helper types)
