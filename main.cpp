@@ -16,7 +16,11 @@
 #include "classes/Pipe1/PreProcess4/PreProcess4.hpp"
 
 #include "classes/Pipe1/SegEx/SegexPipe1.hpp"
+#include "classes/Pipe1/SegEx/Segex2.hpp"
+
 #include "classes/Pipe1/SegEx/HSSegmentation/SegmentationPipe1.hpp"
+#include "classes/Pipe1/SegEx/HSSegReduced/Segmentation2.hpp"
+
 #include "classes/Pipe1/SegEx/Extraction/ExtractionPipe1.hpp"
 
 #include <string>
@@ -116,7 +120,6 @@ const std::string ball_window = "Ball Window";
 
 const std::string window_enemy = "Enemy";
 
-
 Colors *colors;
 
 int val = 0;
@@ -130,13 +133,13 @@ int main()
     Mat allyDefOut2, allyDirOut2;
     Mat allyDefOut3, allyDirOut3;
     Mat ballOut;
-    Mat enemyOut; 
+    Mat enemyOut;
 
     CallbackData ballCallback, enemy_data;
-   
+
     int phc = 2;
 
-    std::ofstream ofs("../test_json.json");
+    std::ofstream file;
 
     std::string videoPath = "../videos/escurecido.webm";
 
@@ -150,16 +153,35 @@ int main()
 
     cap >> original;
 
+    std::vector<int> frames = {
+        522, 527, 883, 1199, 1249, 1303, 1375, 1389, 1401, 1673,
+        1719, 1934, 1967, 1977, 2511, 2538, 2629, 2676, 2681, 2707,
+        2862, 2908, 2955, 3040, 3074, 3092, 3101, 3150, 3152, 3209,
+        3262, 3333, 3555, 3766, 3835, 3939, 3972, 3978, 4072, 4073,
+        4132, 4256, 4371, 4571, 4586, 4605, 4629, 4637, 4655, 4741,
+        4749, 4764, 4827, 4889, 5000, 5109, 5146, 5236, 5250, 5388,
+        5416, 5586, 5652, 5940, 5971, 6135, 6185, 6217, 6276, 6496,
+        6680, 6693, 6717, 6763, 7042, 7052, 7109, 7122, 7157, 7167,
+        7185, 7229, 7306, 7496, 7536, 7711, 7966, 8031, 8053, 8099,
+        8139, 8225, 8287, 8492, 8569, 8613, 8695, 8731, 8750, 8774};
+
     /* INICIALIZAÇÕES */
+
+    file.open("../output.csv");
+
+    //Escrevendo o cabeçalho
+    file << "frame,1(verde),2(roxo),3(rosa),4(bola),5(everde),6(erosa),7(eroxo)\n";
 
     // PreProcessPipe1 preprocess = PreProcessPipe1();
     // PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
     PreProcess3Pipe1 preprocess = PreProcess3Pipe1();
     // PreProcess4 preprocess = PreProcess4();
 
-    auto segmentation1 = std::make_unique<SegmentationPipe1>();
-    auto extraction1 = std::make_unique<ExtractionPipe1>();
-    SegexPipe1 segex1 = SegexPipe1(segmentation1.get(), extraction1.get());
+    auto segmentation = std::make_unique<Segmentation2>();
+    // auto segmentation = std::make_unique<SegmentationPipe1>();
+    auto extraction = std::make_unique<ExtractionPipe1>();
+    Segex2 segex = Segex2(segmentation.get(), extraction.get());
+    // SegexPipe1 segex = SegexPipe1(segmentation.get(), extraction.get());
 
     std::vector<CallbackData *> ally_data = {new CallbackData, new CallbackData, new CallbackData};
 
@@ -173,9 +195,8 @@ int main()
     allyDirOut3 = Mat::zeros(original.size(), CV_8UC1);
 
     ballOut = Mat::zeros(original.size(), CV_8UC1);
-    
+
     enemyOut = Mat::zeros(original.size(), CV_8UC1);
-   
 
     for (int i = 0; i < 3; i++)
     {
@@ -210,10 +231,10 @@ int main()
     namedWindow(out_dir_3, WINDOW_NORMAL);
 
     namedWindow("Run Track");
-    
+
     namedWindow(ball_window, WINDOW_NORMAL);
     namedWindow(window_enemy, WINDOW_NORMAL);
-    
+
     /* namedWindow("PreP img");
     namedWindow("Temp1", WINDOW_NORMAL);
     namedWindow("Temp2", WINDOW_NORMAL);
@@ -224,8 +245,6 @@ int main()
     namedWindow("ThresholdSegPlayer2", WINDOW_NORMAL);
     namedWindow("ThresholdSegPlayer3", WINDOW_NORMAL); */
 
-    
-   
     /* FIM JANELAS */
 
     // Chamando as funções
@@ -253,12 +272,11 @@ int main()
             preprocess.execute(original, filteredImg);
             t = ((double)getTickCount() - t) / getTickFrequency();
 
-            segex1.execute(filteredImg);
+            segex.execute(filteredImg);
 
             std::cout << "PreProcess Time: " << t << std::endl;
             // std::cout << "Total Time: " << t << std::endl;
             //imshow("PreP img", filteredImg);
-            
         }
         else
         {
@@ -295,17 +313,17 @@ int main()
             {
             case 0:
                 point_color = cv::Scalar(0, 0, 255);
-                enemy_color = cv::Scalar(125,123,12);
+                enemy_color = cv::Scalar(125, 123, 12);
                 break;
 
             case 1:
                 point_color = cv::Scalar(0, 255, 0);
-                enemy_color = cv::Scalar(4,82,4);
+                enemy_color = cv::Scalar(4, 82, 4);
                 break;
 
             case 2:
                 point_color = cv::Scalar(255, 0, 0);
-                enemy_color = cv::Scalar(3,38,71);
+                enemy_color = cv::Scalar(3, 38, 71);
                 break;
             }
 
@@ -315,18 +333,32 @@ int main()
 
         auto *b = Global::getBall();
 
-        helpers::drawObject(b->getPosX(), b->getPosY(), cv::Scalar(7,5,82), original);
+        helpers::drawObject(b->getPosX(), b->getPosY(), cv::Scalar(7, 5, 82), original);
 
         imshow(original_window, original);
 
-        helpers::createImageFile(original, phc++, "original/frame");
+        helpers::createImageFile(original, phc, "original/frame");
+
+        if(std::find(frames.begin(), frames.end(), phc) != frames.end())
+        {
+            file << phc 
+            << "," << Global::getAlliedRobots()[0]->getPosX() << ";" << Global::getAlliedRobots()[0]->getPosY()
+            << "," << Global::getAlliedRobots()[1]->getPosX() << ";" << Global::getAlliedRobots()[1]->getPosY()
+            << "," << Global::getAlliedRobots()[2]->getPosX() << ";" << Global::getAlliedRobots()[2]->getPosY()
+            << "," << b->getPosX() << ";" << b->getPosY()
+            << "," << Global::getEnemyRobots()[0]->getPosX() << ";" << Global::getEnemyRobots()[0]->getPosY()
+            << "," << Global::getEnemyRobots()[1]->getPosX() << ";" << Global::getEnemyRobots()[1]->getPosY()
+            << "," << Global::getEnemyRobots()[2]->getPosX() << ";" << Global::getEnemyRobots()[2]->getPosY() << "\n";
+        }
+
+        phc++;
 
         waitKey(15);
     }
 
-    destroyAllWindows();
+    file.close();
 
-    ofs.close();
+    destroyAllWindows();
 
     return 0;
 }
@@ -872,7 +904,7 @@ void setBallSMax(int pos, void *data)
 
 void setBallVMax(int pos, void *data)
 {
-      CallbackData *cb_data;
+    CallbackData *cb_data;
     Scalar hsv;
 
     if (data == NULL)

@@ -21,6 +21,7 @@ add_subdirectory(classes/Pipe1/PreProcess4)
 add_subdirectory(classes/Pipe1/SegEx)
 add_subdirectory(classes/Pipe1/SegEx/Extraction)
 add_subdirectory(classes/Pipe1/SegEx/HSSegmentation)
+add_subdirectory(classes/Pipe1/SegEx/HSSegReduced)
 
 
 add_executable( TCC main.cpp )
@@ -30,7 +31,7 @@ target_link_libraries(
     PipeInterface
     PreProcess Robo Ball Colors Global Helper
     preprocesspipe1 preprocess2pipe1 preprocess3pipe1 preprocess4
-    segexpipe1 segmentationpipe1 extractionpipe1
+    segexpipe1 segex2 segmentationpipe1 segmentation2 extractionpipe1
 )
 
 target_include_directories(TCC PUBLIC
