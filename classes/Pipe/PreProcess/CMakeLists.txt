@@ -1,0 +1,2 @@
+add_library(preprocess PreProcess.cpp)
+target_link_libraries(preprocess PUBLIC PipeInterface ImgProcess Helper)

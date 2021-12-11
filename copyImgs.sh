@@ -14,5 +14,9 @@ frames=(
 
 for ((i=0;i<${#frames[@]};i++))
 do
-    cp ./Images/outputs/original/frame_${frames[$i]}_.png /home/gilberto/Documentos/UFPel/TCC/Documentos_Produzidos/TCC2/teste_completo/reduced_segmentation
+    # cp ./Images/outputs/original/frame_${frames[$i]}_.png /home/gilberto/Documentos/UFPel/TCC/Documentos_Produzidos/TCC2/teste_completo/full_seg_full_pipe
+    # cp ./Images/outputs/original/frame_${frames[$i]}_.png /home/gilberto/Documentos/UFPel/TCC/Documentos_Produzidos/TCC2/teste_completo/full_seg_no_blur
+    # cp ./Images/outputs/original/frame_${frames[$i]}_.png /home/gilberto/Documentos/UFPel/TCC/Documentos_Produzidos/TCC2/teste_completo/full_seg_no_pos
+    # cp ./Images/outputs/original/frame_${frames[$i]}_.png /home/gilberto/Documentos/UFPel/TCC/Documentos_Produzidos/TCC2/teste_completo/full_seg_no_blur_no_pos
+    # cp ./Images/outputs/original/frame_${frames[$i]}_.png /home/gilberto/Documentos/UFPel/TCC/Documentos_Produzidos/TCC2/teste_completo/reduce_seg_w100_no_blur_no_pos
 done

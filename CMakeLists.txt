@@ -13,15 +13,12 @@ add_subdirectory(libs/libvision)
 add_subdirectory(libs/interfaces)
 add_subdirectory(libs/types)
 
-add_subdirectory(classes/Pipe1/PreProcess1)
-add_subdirectory(classes/Pipe1/PreProcess2)
-add_subdirectory(classes/Pipe1/PreProcess3)
-add_subdirectory(classes/Pipe1/PreProcess4)
+add_subdirectory(classes/Pipe/PreProcess)
 
-add_subdirectory(classes/Pipe1/SegEx)
-add_subdirectory(classes/Pipe1/SegEx/Extraction)
-add_subdirectory(classes/Pipe1/SegEx/HSSegmentation)
-add_subdirectory(classes/Pipe1/SegEx/HSSegReduced)
+add_subdirectory(classes/Pipe/SegEx)
+add_subdirectory(classes/Pipe/SegEx/Extraction)
+add_subdirectory(classes/Pipe/SegEx/HSSegReduced)
+add_subdirectory(classes/Pipe/SegEx/HSSegFull)
 
 
 add_executable( TCC main.cpp )
@@ -29,9 +26,8 @@ add_executable( TCC main.cpp )
 target_link_libraries( 
     TCC PUBLIC ${OpenCV_LIBS} OpenMP::OpenMP_CXX
     PipeInterface
-    PreProcess Robo Ball Colors Global Helper
-    preprocesspipe1 preprocess2pipe1 preprocess3pipe1 preprocess4
-    segexpipe1 segex2 segmentationpipe1 segmentation2 extractionpipe1
+    ImgProcess Robo Ball Colors Global Helper
+    preprocess segex fullseg reducedseg extraction
 )
 
 target_include_directories(TCC PUBLIC

@@ -1,4 +1,4 @@
-#include "libs/libvision/PreProcess.h"
+#include "libs/libvision/ImgProcess.h"
 #include "libs/libobjects/Robo.h"
 #include "libs/libobjects/Ball.h"
 #include "libs/globals/Global.h"
@@ -10,18 +10,14 @@
 #include "libs/interfaces/ExtractionInterface.hpp"
 #include "libs/interfaces/SegExInterface.hpp"
 
-#include "classes/Pipe1/PreProcess1/PreProcessPipe1.hpp"
-#include "classes/Pipe1/PreProcess2/PreProcess2Pipe1.hpp"
-#include "classes/Pipe1/PreProcess3/PreProcess3Pipe1.hpp"
-#include "classes/Pipe1/PreProcess4/PreProcess4.hpp"
+#include "classes/Pipe/PreProcess/PreProcess.hpp"
 
-#include "classes/Pipe1/SegEx/SegexPipe1.hpp"
-#include "classes/Pipe1/SegEx/Segex2.hpp"
+#include "classes/Pipe/SegEx/Segex.hpp"
 
-#include "classes/Pipe1/SegEx/HSSegmentation/SegmentationPipe1.hpp"
-#include "classes/Pipe1/SegEx/HSSegReduced/Segmentation2.hpp"
+#include "classes/Pipe/SegEx/HSSegFull/FullSeg.hpp"
+#include "classes/Pipe/SegEx/HSSegReduced/ReducedSeg.hpp"
 
-#include "classes/Pipe1/SegEx/Extraction/ExtractionPipe1.hpp"
+#include "classes/Pipe/SegEx/Extraction/Extraction.hpp"
 
 #include <string>
 #include <iostream>
@@ -137,8 +133,6 @@ int main()
 
     CallbackData ballCallback, enemy_data;
 
-    int phc = 2;
-
     std::ofstream file;
 
     std::string videoPath = "../videos/escurecido.webm";
@@ -153,35 +147,31 @@ int main()
 
     cap >> original;
 
-    std::vector<int> frames = {
-        522, 527, 883, 1199, 1249, 1303, 1375, 1389, 1401, 1673,
-        1719, 1934, 1967, 1977, 2511, 2538, 2629, 2676, 2681, 2707,
-        2862, 2908, 2955, 3040, 3074, 3092, 3101, 3150, 3152, 3209,
-        3262, 3333, 3555, 3766, 3835, 3939, 3972, 3978, 4072, 4073,
-        4132, 4256, 4371, 4571, 4586, 4605, 4629, 4637, 4655, 4741,
-        4749, 4764, 4827, 4889, 5000, 5109, 5146, 5236, 5250, 5388,
-        5416, 5586, 5652, 5940, 5971, 6135, 6185, 6217, 6276, 6496,
-        6680, 6693, 6717, 6763, 7042, 7052, 7109, 7122, 7157, 7167,
-        7185, 7229, 7306, 7496, 7536, 7711, 7966, 8031, 8053, 8099,
-        8139, 8225, 8287, 8492, 8569, 8613, 8695, 8731, 8750, 8774};
+    // std::vector<int> frames = {
+    //     522, 527, 883, 1199, 1249, 1303, 1375, 1389, 1401, 1673,
+    //     1719, 1934, 1967, 1977, 2511, 2538, 2629, 2676, 2681, 2707,
+    //     2862, 2908, 2955, 3040, 3074, 3092, 3101, 3150, 3152, 3209,
+    //     3262, 3333, 3555, 3766, 3835, 3939, 3972, 3978, 4072, 4073,
+    //     4132, 4256, 4371, 4571, 4586, 4605, 4629, 4637, 4655, 4741,
+    //     4749, 4764, 4827, 4889, 5000, 5109, 5146, 5236, 5250, 5388,
+    //     5416, 5586, 5652, 5940, 5971, 6135, 6185, 6217, 6276, 6496,
+    //     6680, 6693, 6717, 6763, 7042, 7052, 7109, 7122, 7157, 7167,
+    //     7185, 7229, 7306, 7496, 7536, 7711, 7966, 8031, 8053, 8099,
+    //     8139, 8225, 8287, 8492, 8569, 8613, 8695, 8731, 8750, 8774};
 
     /* INICIALIZAÇÕES */
 
-    file.open("../output.csv");
+    // file.open("../output.csv");
 
     //Escrevendo o cabeçalho
-    file << "frame,1(verde),2(roxo),3(rosa),4(bola),5(everde),6(erosa),7(eroxo)\n";
+    // file << "frame,1(verde),2(roxo),3(rosa),4(bola),5(everde),6(erosa),7(eroxo)\n";
 
-    // PreProcessPipe1 preprocess = PreProcessPipe1();
-    // PreProcess2Pipe1 preprocess = PreProcess2Pipe1();
-    PreProcess3Pipe1 preprocess = PreProcess3Pipe1();
-    // PreProcess4 preprocess = PreProcess4();
+    PreProcess preprocess = PreProcess();
 
-    auto segmentation = std::make_unique<Segmentation2>();
-    // auto segmentation = std::make_unique<SegmentationPipe1>();
-    auto extraction = std::make_unique<ExtractionPipe1>();
-    Segex2 segex = Segex2(segmentation.get(), extraction.get());
-    // SegexPipe1 segex = SegexPipe1(segmentation.get(), extraction.get());
+    auto segmentation = std::make_unique<FullSeg>();
+    auto extraction = std::make_unique<Extraction>();
+ 
+    Segex segex = Segex(segmentation.get(), extraction.get());
 
     std::vector<CallbackData *> ally_data = {new CallbackData, new CallbackData, new CallbackData};
 
@@ -268,15 +258,10 @@ int main()
 
         if (val)
         {
-            double t = (double)getTickCount();
             preprocess.execute(original, filteredImg);
-            t = ((double)getTickCount() - t) / getTickFrequency();
 
             segex.execute(filteredImg);
 
-            std::cout << "PreProcess Time: " << t << std::endl;
-            // std::cout << "Total Time: " << t << std::endl;
-            //imshow("PreP img", filteredImg);
         }
         else
         {
@@ -336,22 +321,6 @@ int main()
         helpers::drawObject(b->getPosX(), b->getPosY(), cv::Scalar(7, 5, 82), original);
 
         imshow(original_window, original);
-
-        helpers::createImageFile(original, phc, "original/frame");
-
-        if(std::find(frames.begin(), frames.end(), phc) != frames.end())
-        {
-            file << phc 
-            << "," << Global::getAlliedRobots()[0]->getPosX() << ";" << Global::getAlliedRobots()[0]->getPosY()
-            << "," << Global::getAlliedRobots()[1]->getPosX() << ";" << Global::getAlliedRobots()[1]->getPosY()
-            << "," << Global::getAlliedRobots()[2]->getPosX() << ";" << Global::getAlliedRobots()[2]->getPosY()
-            << "," << b->getPosX() << ";" << b->getPosY()
-            << "," << Global::getEnemyRobots()[0]->getPosX() << ";" << Global::getEnemyRobots()[0]->getPosY()
-            << "," << Global::getEnemyRobots()[1]->getPosX() << ";" << Global::getEnemyRobots()[1]->getPosY()
-            << "," << Global::getEnemyRobots()[2]->getPosX() << ";" << Global::getEnemyRobots()[2]->getPosY() << "\n";
-        }
-
-        phc++;
 
         waitKey(15);
     }

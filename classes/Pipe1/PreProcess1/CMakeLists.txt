@@ -1,2 +1,0 @@
-add_library(preprocesspipe1 PreProcessPipe1.cpp)
-target_link_libraries(preprocesspipe1 PUBLIC PipeInterface PreProcess Helper)
