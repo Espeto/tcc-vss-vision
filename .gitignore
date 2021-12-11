@@ -11,3 +11,5 @@ segment.txt
 reduced_seg.txt
 seg_after_reduc.txt
 output.csv
+copyImgs.sh
+Images/
