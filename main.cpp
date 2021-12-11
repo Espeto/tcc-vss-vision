@@ -63,10 +63,9 @@ void setHEnemyMax(int pos, void *data);
 void setSEnemyMax(int pos, void *data);
 void setVEnemyMax(int pos, void *data);
 
-void robot1TrackbarsCreator(std::string window_name, void *data);
-void robot2TrackbarsCreator(std::string window_name, void *data);
-void robot3TrackbarsCreator(std::string window_name, void *data);
+void robotTrackbarsCreator(std::string window_name, void *data);
 
+void teamTrackbarsCreator(std::string window_name, void *data);
 void enemyTrackbarsCreator(std::string window_name, void *data);
 
 void ballTrackbarsCreator(std::string window_name, void *data);
@@ -77,35 +76,20 @@ struct CallbackData
 {
     int id;
     Mat *original;
-    Mat *outDef;
-    Mat *outDir;
+    Mat *out;
 };
 
-// Team
-int HDefMin = 0, HDefMax = 180;
-int SDefMin = 0, SDefMax = 255;
-int VDefMin = 0, VDefMax = 255;
-
-// Players
-int H1DirMin = 0, H1DirMax = 180;
-int S1DirMin = 0, S1DirMax = 255;
-int V1DirMin = 0, V1DirMax = 255;
-
-int H2DirMin = 0, H2DirMax = 180;
-int S2DirMin = 0, S2DirMax = 255;
-int V2DirMin = 0, V2DirMax = 255;
-
-int H3DirMin = 0, H3DirMax = 180;
-int S3DirMin = 0, S3DirMax = 255;
-int V3DirMin = 0, V3DirMax = 255;
-
-int ballHMin = 0, ballHMax = 180;
-int ballSMin = 0, ballSMax = 255;
-int ballVMin = 0, ballVMax = 255;
+struct RobotCallbackData
+{
+    int id;
+    Mat *original;
+    Mat *out;
+    int *Hmin, *Hmax;
+    int *Smin, *Smax;
+};
 
 const std::string original_window = "Original";
 
-const std::string window_ally_1 = "Ally 1";
 const std::string out_dir_1 = "Ally Dir 1";
 
 const std::string out_dir_2 = "Ally Dir 2";
@@ -116,24 +100,42 @@ const std::string ball_window = "Ball Window";
 
 const std::string window_enemy = "Enemy";
 
+const std::string window_team = "Team";
+
 Colors *colors;
 
 int val = 0;
 
 int main()
 {
+    // Players
+    int H1Min = 0, H1Max = 180;
+    int S1Min = 0, S1Max = 255;
+
+    int H2Min = 0, H2Max = 180;
+    int S2Min = 0, S2Max = 255;
+
+    int H3Min = 0, H3Max = 180;
+    int S3Min = 0, S3Max = 255;
+
+    int ballHMin = 0, ballHMax = 180;
+    int ballSMin = 0, ballSMax = 255;
+
     VideoCapture cap;
 
     Mat original, hsvImage, filteredImg;
-    Mat allyDefOut1, allyDirOut1;
-    Mat allyDefOut2, allyDirOut2;
-    Mat allyDefOut3, allyDirOut3;
+    Mat allyDirOut1;
+    Mat allyDirOut2;
+    Mat allyDirOut3;
     Mat ballOut;
-    Mat enemyOut;
+    Mat enemyOut, teamOut;
 
-    CallbackData ballCallback, enemy_data;
+    CallbackData enemy_data, team_data;
 
-    std::ofstream file;
+    RobotCallbackData ballCallback;
+    std::vector<RobotCallbackData *> ally_data = {new RobotCallbackData, new RobotCallbackData, new RobotCallbackData};
+
+    // std::ofstream file;
 
     std::string videoPath = "../videos/escurecido.webm";
 
@@ -170,14 +172,11 @@ int main()
 
     auto segmentation = std::make_unique<FullSeg>();
     auto extraction = std::make_unique<Extraction>();
- 
-    Segex segex = Segex(segmentation.get(), extraction.get());
 
-    std::vector<CallbackData *> ally_data = {new CallbackData, new CallbackData, new CallbackData};
+    Segex segex = Segex(segmentation.get(), extraction.get());
 
     colors = Global::getColors();
 
-    allyDefOut1 = Mat::zeros(original.size(), CV_8UC1);
     allyDirOut1 = Mat::zeros(original.size(), CV_8UC1);
 
     allyDirOut2 = Mat::zeros(original.size(), CV_8UC1);
@@ -188,33 +187,51 @@ int main()
 
     enemyOut = Mat::zeros(original.size(), CV_8UC1);
 
+    teamOut = Mat::zeros(original.size(), CV_8UC1);
+
     for (int i = 0; i < 3; i++)
     {
         ally_data[i]->original = &hsvImage;
         ally_data[i]->id = i;
     }
 
-    ally_data[0]->outDef = &allyDefOut1;
-    ally_data[0]->outDir = &allyDirOut1;
+    ally_data[0]->out = &allyDirOut1;
+    ally_data[0]->Hmin = &H1Min;
+    ally_data[0]->Hmax = &H1Max;
+    ally_data[0]->Smin = &S1Min;
+    ally_data[0]->Smax = &S1Max;
 
-    ally_data[1]->outDef = &allyDefOut2;
-    ally_data[1]->outDir = &allyDirOut2;
+    ally_data[1]->out = &allyDirOut2;
+    ally_data[1]->Hmin = &H2Min;
+    ally_data[1]->Hmax = &H2Max;
+    ally_data[1]->Smin = &S2Min;
+    ally_data[1]->Smax = &S2Max;
 
-    ally_data[2]->outDef = &allyDefOut3;
-    ally_data[2]->outDir = &allyDirOut3;
+    ally_data[2]->out = &allyDirOut3;
+    ally_data[2]->Hmin = &H2Min;
+    ally_data[2]->Hmax = &H2Max;
+    ally_data[2]->Smin = &S2Min;
+    ally_data[2]->Smax = &S2Max;
 
     ballCallback.original = &hsvImage;
-    ballCallback.outDef = &ballOut;
+    ballCallback.out = &ballOut;
+    ballCallback.Hmin = &ballHMin;
+    ballCallback.Hmax = &ballHMax;
+    ballCallback.Smin = &ballSMin;
+    ballCallback.Smax = &ballSMax;
 
     enemy_data.original = &hsvImage;
-    enemy_data.outDef = &enemyOut;
+    enemy_data.out = &enemyOut;
+
+    team_data.original = &hsvImage;
+    team_data.out = &teamOut;
 
     /* FIM INICIALIZAÇÕES */
 
     /* JANELAS */
     namedWindow(original_window, WINDOW_NORMAL);
 
-    namedWindow(window_ally_1, WINDOW_NORMAL);
+    namedWindow(window_team, WINDOW_NORMAL);
 
     namedWindow(out_dir_1, WINDOW_NORMAL);
     namedWindow(out_dir_2, WINDOW_NORMAL);
@@ -238,9 +255,10 @@ int main()
     /* FIM JANELAS */
 
     // Chamando as funções
-    robot1TrackbarsCreator(window_ally_1, (void *)ally_data[0]);
-    robot2TrackbarsCreator(out_dir_2, (void *)ally_data[1]);
-    robot3TrackbarsCreator(out_dir_3, (void *)ally_data[2]);
+    teamTrackbarsCreator(window_team, (void *) &team_data);
+    robotTrackbarsCreator(out_dir_1, (void *)ally_data[0]);
+    robotTrackbarsCreator(out_dir_2, (void *)ally_data[1]);
+    robotTrackbarsCreator(out_dir_3, (void *)ally_data[2]);
 
     ballTrackbarsCreator(ball_window, (void *)&ballCallback);
 
@@ -261,7 +279,6 @@ int main()
             preprocess.execute(original, filteredImg);
 
             segex.execute(filteredImg);
-
         }
         else
         {
@@ -271,7 +288,8 @@ int main()
 
                 preprocess.execute(original, hsvImage);
 
-                imshow(window_ally_1, allyDefOut1);
+                imshow(window_team, teamOut);
+
                 imshow(out_dir_1, allyDirOut1);
 
                 imshow(out_dir_2, allyDirOut2);
@@ -325,7 +343,7 @@ int main()
         waitKey(15);
     }
 
-    file.close();
+    //file.close();
 
     destroyAllWindows();
 
@@ -342,64 +360,43 @@ void enemyTrackbarsCreator(std::string window_name, void *data)
 {
     static int HEnemyDefMin = 0, HEnemyDefMax = 180;
     static int SEnemyDefMin = 0, SEnemyDefMax = 255;
-    static int VEnemyDefMin = 0, VEnemyDefMax = 255;
 
     createTrackbar("H Def Min", window_name, &HEnemyDefMin, 180, setHEnemyMin, data);
     createTrackbar("H Def Max", window_name, &HEnemyDefMax, 180, setHEnemyMax, data);
     createTrackbar("S Def Min", window_name, &SEnemyDefMin, 255, setSEnemyMin, data);
     createTrackbar("S Def Max", window_name, &SEnemyDefMax, 255, setSEnemyMax, data);
-    createTrackbar("V Def Min", window_name, &VEnemyDefMin, 255, setVEnemyMin, data);
-    createTrackbar("V Def Max", window_name, &VEnemyDefMax, 255, setVEnemyMax, data);
 }
 
-void robot1TrackbarsCreator(std::string window_name, void *data)
+void teamTrackbarsCreator(std::string window_name, void *data)
 {
+    // Team
+    static int HDefMin = 0, HDefMax = 180;
+    static int SDefMin = 0, SDefMax = 255;
 
     createTrackbar("H Def Min", window_name, &HDefMin, 180, setHDefMin, data);
     createTrackbar("H Def Max", window_name, &HDefMax, 180, setHDefMax, data);
     createTrackbar("S Def Min", window_name, &SDefMin, 255, setSDefMin, data);
     createTrackbar("S Def Max", window_name, &SDefMax, 255, setSDefMax, data);
-    createTrackbar("V Def Min", window_name, &VDefMin, 255, setVDefMin, data);
-    createTrackbar("V Def Max", window_name, &VDefMax, 255, setVDefMax, data);
-
-    createTrackbar("H Dir Min", window_name, &H1DirMin, 180, setHDirectMin, data);
-    createTrackbar("H Dir Max", window_name, &H1DirMax, 180, setHDirectMax, data);
-    createTrackbar("S Dir Min", window_name, &S1DirMin, 255, setSDirectMin, data);
-    createTrackbar("S Dir Max", window_name, &S1DirMax, 255, setSDirectMax, data);
-    createTrackbar("V Dir Min", window_name, &V1DirMin, 255, setVDirectMin, data);
-    createTrackbar("V Dir Max", window_name, &V1DirMax, 255, setVDirectMax, data);
 }
 
-void robot2TrackbarsCreator(std::string window_name, void *data)
+void robotTrackbarsCreator(std::string window_name, void *data)
 {
+    RobotCallbackData *rdata = (RobotCallbackData *) data;
 
-    createTrackbar("H Dir Min", window_name, &H2DirMin, 180, setHDirectMin, data);
-    createTrackbar("H Dir Max", window_name, &H2DirMax, 180, setHDirectMax, data);
-    createTrackbar("S Dir Min", window_name, &S2DirMin, 255, setSDirectMin, data);
-    createTrackbar("S Dir Max", window_name, &S2DirMax, 255, setSDirectMax, data);
-    createTrackbar("V Dir Min", window_name, &V2DirMin, 255, setVDirectMin, data);
-    createTrackbar("V Dir Max", window_name, &V2DirMax, 255, setVDirectMax, data);
-}
-
-void robot3TrackbarsCreator(std::string window_name, void *data)
-{
-
-    createTrackbar("H Dir Min", window_name, &H3DirMin, 180, setHDirectMin, data);
-    createTrackbar("H Dir Max", window_name, &H3DirMax, 180, setHDirectMax, data);
-    createTrackbar("S Dir Min", window_name, &S3DirMin, 255, setSDirectMin, data);
-    createTrackbar("S Dir Max", window_name, &S3DirMax, 255, setSDirectMax, data);
-    createTrackbar("V Dir Min", window_name, &V3DirMin, 255, setVDirectMin, data);
-    createTrackbar("V Dir Max", window_name, &V3DirMax, 255, setVDirectMax, data);
+    createTrackbar("H Dir Min", window_name, rdata->Hmin, 180, setHDirectMin, data);
+    createTrackbar("H Dir Max", window_name, rdata->Hmax, 180, setHDirectMax, data);
+    createTrackbar("S Dir Min", window_name, rdata->Smin, 255, setSDirectMin, data);
+    createTrackbar("S Dir Max", window_name, rdata->Smax, 255, setSDirectMax, data);
 }
 
 void ballTrackbarsCreator(std::string window_name, void *data)
 {
-    createTrackbar("H Ball Min", window_name, &ballHMin, 180, setBallHMin, data);
-    createTrackbar("H Ball Max", window_name, &ballHMax, 180, setBallHMax, data);
-    createTrackbar("S Ball Min", window_name, &ballSMin, 255, setBallSMin, data);
-    createTrackbar("S Ball Max", window_name, &ballSMax, 255, setBallSMax, data);
-    createTrackbar("V Ball Min", window_name, &ballVMin, 255, setBallVMin, data);
-    createTrackbar("V Ball Max", window_name, &ballVMax, 255, setBallVMax, data);
+    RobotCallbackData *ball = (RobotCallbackData *) data;
+
+    createTrackbar("H Ball Min", window_name, ball->Hmin, 180, setBallHMin, data);
+    createTrackbar("H Ball Max", window_name, ball->Hmax, 180, setBallHMax, data);
+    createTrackbar("S Ball Min", window_name, ball->Smin, 255, setBallSMin, data);
+    createTrackbar("S Ball Max", window_name, ball->Smax, 255, setBallSMax, data);
 }
 
 /* Seta cor do time */
@@ -429,7 +426,7 @@ void setHDefMin(int pos, void *data)
 
     maxRange = colors->getAllyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setSDefMin(int pos, void *data)
@@ -455,7 +452,7 @@ void setSDefMin(int pos, void *data)
 
     maxRange = colors->getAllyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setVDefMin(int pos, void *data)
@@ -481,7 +478,7 @@ void setVDefMin(int pos, void *data)
 
     maxRange = colors->getAllyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 /* Máximos cor do time */
@@ -509,7 +506,7 @@ void setHDefMax(int pos, void *data)
 
     minRange = colors->getAllyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setSDefMax(int pos, void *data)
@@ -535,7 +532,7 @@ void setSDefMax(int pos, void *data)
 
     minRange = colors->getAllyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setVDefMax(int pos, void *data)
@@ -561,7 +558,7 @@ void setVDefMax(int pos, void *data)
 
     minRange = colors->getAllyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 /* Seta cor do papel do robo */
@@ -590,7 +587,7 @@ void setHDirectMin(int pos, void *data)
 
     maxRange = colors->getRobotColorMax(cb_data->id);
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDir);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setSDirectMin(int pos, void *data)
@@ -616,7 +613,7 @@ void setSDirectMin(int pos, void *data)
 
     maxRange = colors->getRobotColorMax(cb_data->id);
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDir);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setVDirectMin(int pos, void *data)
@@ -642,7 +639,7 @@ void setVDirectMin(int pos, void *data)
 
     maxRange = colors->getRobotColorMax(cb_data->id);
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDir);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 /* Máximos */
@@ -669,7 +666,7 @@ void setHDirectMax(int pos, void *data)
 
     minRange = colors->getRobotColorMin(cb_data->id);
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDir);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setSDirectMax(int pos, void *data)
@@ -695,7 +692,7 @@ void setSDirectMax(int pos, void *data)
 
     minRange = colors->getRobotColorMin(cb_data->id);
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDir);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setVDirectMax(int pos, void *data)
@@ -721,7 +718,7 @@ void setVDirectMax(int pos, void *data)
 
     minRange = colors->getRobotColorMin(cb_data->id);
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDir);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 /* Bola */
@@ -753,7 +750,7 @@ void setBallHMin(int pos, void *data)
 
     maxRange = b->getHSVMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setBallSMin(int pos, void *data)
@@ -782,7 +779,7 @@ void setBallSMin(int pos, void *data)
 
     maxRange = b->getHSVMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setBallVMin(int pos, void *data)
@@ -811,7 +808,7 @@ void setBallVMin(int pos, void *data)
 
     maxRange = b->getHSVMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 /* Máximos */
@@ -840,7 +837,7 @@ void setBallHMax(int pos, void *data)
 
     minRange = b->getHSVMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setBallSMax(int pos, void *data)
@@ -868,7 +865,7 @@ void setBallSMax(int pos, void *data)
 
     minRange = b->getHSVMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setBallVMax(int pos, void *data)
@@ -896,7 +893,7 @@ void setBallVMax(int pos, void *data)
 
     minRange = b->getHSVMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 /* Adversários */
@@ -926,7 +923,7 @@ void setHEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setSEnemyMin(int pos, void *data)
@@ -952,7 +949,7 @@ void setSEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 void setVEnemyMin(int pos, void *data)
@@ -978,7 +975,7 @@ void setVEnemyMin(int pos, void *data)
 
     maxRange = colors->getEnemyMax();
 
-    inRange(*cb_data->original, hsv, maxRange, *cb_data->outDef);
+    inRange(*cb_data->original, hsv, maxRange, *cb_data->out);
 }
 
 /* Máximos cor do time */
@@ -1006,7 +1003,7 @@ void setHEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setSEnemyMax(int pos, void *data)
@@ -1032,7 +1029,7 @@ void setSEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
 
 void setVEnemyMax(int pos, void *data)
@@ -1058,5 +1055,5 @@ void setVEnemyMax(int pos, void *data)
 
     minRange = colors->getEnemyMin();
 
-    inRange(*cb_data->original, minRange, hsv, *cb_data->outDef);
+    inRange(*cb_data->original, minRange, hsv, *cb_data->out);
 }
